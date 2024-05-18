@@ -65,7 +65,6 @@ where
             TypedHeader::<Authorization<Bearer>>::from_request_parts(parts, _state)
                 .await
                 .map_err(|_| RespError::from(anyhow!(AuthError::InvalidToken)))?;
-        tracing::debug!("{bearer:?}");
         // Decode the user data
         let token_data = decode::<Claims>(bearer.token(), &KEYS.decoding, &Validation::default())
             .map_err(|_| RespError::from(anyhow!(AuthError::InvalidToken)))?;

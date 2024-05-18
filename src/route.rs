@@ -42,6 +42,7 @@ pub async fn route() -> Result<Router, anyhow::Error> {
         .route("/", get(index))
         .nest("/api/users", user_router())
         .nest("/api/auth", auth_router())
+        .nest("/api/bakery", bakery_router())
         .fallback(global_404)
         .with_state(Arc::new(AppState { conn: db }))
         .layer(
@@ -64,16 +65,17 @@ pub async fn route() -> Result<Router, anyhow::Error> {
                         .allow_methods(Any)
                         .allow_headers(Any),
                 ),
-        ))
+        )
+        .layer(middleware::from_fn(auth)) // current user middleware
+    )
 }
 
 fn user_router() -> Router<Arc<AppState>> {
     // /api/users
     Router::new()
-        .route("/", get(users::users_list))
-        .route("/:id", get(users::user_by_id))
-        .route_layer(middleware::from_fn(auth)) // auth middleware
-        .layer(middleware::from_extractor::<Claims>()) // auth middleware
+        .route("/", get(users::list))
+        .route("/:id", get(users::detail))
+        .layer(middleware::from_extractor::<Claims>()) // jwt auth middleware
 }
 
 fn auth_router() -> Router<Arc<AppState>> {
@@ -82,4 +84,15 @@ fn auth_router() -> Router<Arc<AppState>> {
         .route("/register", post(auth::register))
         .route("/login", post(auth::login))
         .route("/protected", get(auth::protected))
+}
+
+fn bakery_router() -> Router<Arc<AppState>> {
+    // /api/bakery
+    Router::new()
+        .route("/create", post(bakery::create))
+        .route("/update", post(bakery::update))
+        .route("/delete", post(bakery::delete))
+        .layer(middleware::from_extractor::<Claims>()) // jwt auth middleware
+        .route("/", get(bakery::list))
+        .route("/:id", get(bakery::detail))
 }

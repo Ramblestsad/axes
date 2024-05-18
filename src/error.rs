@@ -17,7 +17,7 @@ impl IntoResponse for RespError {
     fn into_response(self) -> Response {
         let status_code = if let Some(error) = self.0.downcast_ref::<AuthError>() {
             match error {
-                AuthError::InvalidToken => (StatusCode::BAD_REQUEST, "Invalid token"),
+                AuthError::InvalidToken => (StatusCode::UNAUTHORIZED, "Invalid token"),
                 AuthError::MissingCredential => (StatusCode::BAD_REQUEST, "Missing credential"),
                 AuthError::TokenCreation => {
                     (StatusCode::INTERNAL_SERVER_ERROR, "Failed to create token")

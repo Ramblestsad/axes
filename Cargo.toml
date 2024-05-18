@@ -6,15 +6,9 @@ authors = ["Rc <yilinw6@gmail.com>"]
 license = "MIT"
 description = "axum experimental scratch"
 
-[workspace]
-members = [".", "entity", "migration"]
-
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-entity = { path = "entity" }
-migration = { path = "migration" }
-
 # base libs
 tokio = { version = "1", features = ["full"] }
 tracing = "0.1"
@@ -30,6 +24,7 @@ itertools = "0.13"
 
 # axum libs
 axum = { version = "0.7" }
+axum-macros = "0.4"
 axum-extra = { version = "0.9", features = ["typed-header"] }
 axum-valid = "0.18"
 headers = "0.4"

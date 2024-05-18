@@ -1,6 +1,7 @@
 use axum::http::StatusCode;
 
 pub mod auth;
+pub mod bakery;
 pub mod users;
 
 pub async fn index() -> &'static str {

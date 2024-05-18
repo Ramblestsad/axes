@@ -71,6 +71,7 @@ pub struct CurrentUser {
 
 #[allow(unused_variables)]
 pub async fn auth(mut req: Request, next: Next) -> AppResult<Response> {
+    // TODO implement the authorization or null logic
     // let auth_header = req
     //     .headers()
     //     .get(http::header::AUTHORIZATION)
