@@ -1,0 +1,13 @@
+max_width = 100
+comment_width = 100
+wrap_comments = true
+newline_style = "Unix"
+chain_width = 60
+
+reorder_imports = true
+group_imports = "StdExternalCrate"
+imports_granularity = "Module"
+imports_layout = "HorizontalVertical"
+use_field_init_shorthand = true
+use_small_heuristics = "Max"
+fn_args_layout = "Tall"

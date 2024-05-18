@@ -1,0 +1,53 @@
+[package]
+name = "axes"
+version = "0.1.0"
+edition = "2021"
+authors = ["Rc <yilinw6@gmail.com>"]
+license = "MIT"
+description = "axum experimental scratch"
+
+[workspace]
+members = [".", "entity", "migration"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+entity = { path = "entity" }
+migration = { path = "migration" }
+
+# base libs
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = [
+    "env-filter",
+    "local-time",
+] }
+tracing-appender = "0.2"
+anyhow = "1"
+thiserror = "1"
+time = { version = "0.3", features = ["macros", "local-offset"] }
+itertools = "0.13"
+
+# axum libs
+axum = { version = "0.7" }
+axum-extra = { version = "0.9", features = ["typed-header"] }
+axum-valid = "0.18"
+headers = "0.4"
+sea-orm = { version = "0.12", features = [ "sqlx-postgres", "runtime-tokio-native-tls", "macros" ] }
+jsonwebtoken = { version = "9" }
+bcrypt = "0.15"
+tower = { version = "0.4", features = ["util"] }
+tower-http = { version = "0.5", features = ["trace", "cors", "fs"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1" }
+once_cell = { version = "1" }
+dotenv = "0.15"
+config = "0.14"
+
+[dev-dependencies]
+pretty_assertions = "1"
+mockall = "0.12"
+
+#[profile.release]
+#opt-level = "s"
+#lto = true

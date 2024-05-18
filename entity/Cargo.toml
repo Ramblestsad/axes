@@ -1,0 +1,10 @@
+[package]
+name = "entity"
+version = "0.1.0"
+edition = "2021"
+authors = ["Rc <yilinw6@gmail.com>"]
+license = "MIT"
+description = "axes entity crate"
+
+[dependencies]
+sea-orm = { version = "0.12" }

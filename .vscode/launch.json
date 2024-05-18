@@ -1,0 +1,74 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Cargo launch bin 'axes'",
+      "cargo": {
+        "args": ["build", "--package=axes"],
+        "filter": {
+          "name": "axes",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PG.USER": "melody",
+        "PG.PASSWORD": "5161",
+        "PG.DBNAME": "mydb",
+        "PG.PORT": "5432",
+        "PG.HOST": "localhost",
+        "PG.POOL.MAX_SIZE": "30"
+      }
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Cargo launch unit tests in bin 'axes'",
+      "cargo": {
+        "args": ["test", "--no-run", "--package=axes"],
+        "filter": {
+          "name": "axes",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PG.USER": "melody",
+        "PG.PASSWORD": "5161",
+        "PG.DBNAME": "mydb",
+        "PG.PORT": "5432",
+        "PG.HOST": "localhost",
+        "PG.POOL.MAX_SIZE": "30"
+      }
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Cargo launch unit tests in lib 'axes'",
+      "cargo": {
+        "args": ["test", "--no-run", "--lib", "--package=axes"],
+        "filter": {
+          "name": "axes",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PG.USER": "melody",
+        "PG.PASSWORD": "5161",
+        "PG.DBNAME": "mydb",
+        "PG.PORT": "5432",
+        "PG.HOST": "localhost",
+        "PG.POOL.MAX_SIZE": "30"
+      }
+    }
+  ]
+}

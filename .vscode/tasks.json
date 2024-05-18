@@ -1,0 +1,44 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "cargo",
+      "command": "run",
+      "args": [],
+      "problemMatcher": ["$rustc"],
+      "label": "cargo run axes",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "focus": true
+      },
+      "env": {
+        "PG.USER": "melody",
+        "PG.PASSWORD": "5161",
+        "PG.DBNAME": "mydb",
+        "PG.PORT": "5432",
+        "PG.HOST": "127.0.0.1",
+        "PG.POOL.MAX_SIZE": "30"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "cargo",
+      "command": "build",
+      "args": [],
+      "problemMatcher": ["$rustc"],
+      "group": "build",
+      "label": "cargo build axes",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "focus": true
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    }
+  ]
+}
