@@ -2,5 +2,3 @@
 
 pub use super::bakery::Entity as Bakery;
 pub use super::chef::Entity as Chef;
-pub use super::cities::Entity as Cities;
-pub use super::weather::Entity as Weather;
