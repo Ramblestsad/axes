@@ -38,35 +38,38 @@ pub async fn route() -> Result<Router, anyhow::Error> {
     let db = Database::connect(&pg_url).await?;
 
     // app init
-    Ok(Router::new()
-        .route("/", get(index))
-        .nest("/api/users", user_router())
-        .nest("/api/auth", auth_router())
-        .nest("/api/bakery", bakery_router())
-        .fallback(global_404)
-        .with_state(Arc::new(AppState { conn: db }))
-        .layer(
-            ServiceBuilder::new()
-                // trace middleware
-                .layer(
-                    TraceLayer::new_for_http()
-                        .make_span_with(
-                            tower_http::trace::DefaultMakeSpan::new().level(Level::INFO),
-                        )
-                        .on_request(tower_http::trace::DefaultOnRequest::new().level(Level::INFO))
-                        .on_response(
-                            tower_http::trace::DefaultOnResponse::new().level(Level::INFO),
-                        ),
-                )
-                // cors middleware
-                .layer(
-                    CorsLayer::new()
-                        .allow_origin(Any)
-                        .allow_methods(Any)
-                        .allow_headers(Any),
-                ),
-        )
-        .layer(middleware::from_fn(auth)) // current user middleware
+    Ok(
+        Router::new()
+            .route("/", get(index))
+            .nest("/api/users", user_router())
+            .nest("/api/auth", auth_router())
+            .nest("/api/bakery", bakery_router())
+            .fallback(global_404)
+            .with_state(Arc::new(AppState { conn: db }))
+            .layer(
+                ServiceBuilder::new()
+                    // trace middleware
+                    .layer(
+                        TraceLayer::new_for_http()
+                            .make_span_with(
+                                tower_http::trace::DefaultMakeSpan::new().level(Level::INFO),
+                            )
+                            .on_request(
+                                tower_http::trace::DefaultOnRequest::new().level(Level::INFO),
+                            )
+                            .on_response(
+                                tower_http::trace::DefaultOnResponse::new().level(Level::INFO),
+                            ),
+                    )
+                    // cors middleware
+                    .layer(
+                        CorsLayer::new()
+                            .allow_origin(Any)
+                            .allow_methods(Any)
+                            .allow_headers(Any),
+                    ),
+            )
+            .layer(middleware::from_fn(auth)), // current user middleware
     )
 }
 
