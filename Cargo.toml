@@ -43,6 +43,9 @@ config = "0.14"
 pretty_assertions = "1"
 mockall = "0.12"
 
-#[profile.release]
-#opt-level = "s"
-#lto = true
+[profile.dev]
+opt-level = 0
+
+[profile.release]
+opt-level = 3
+lto = true
