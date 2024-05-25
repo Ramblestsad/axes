@@ -29,7 +29,10 @@ pub async fn list(
         .map(|p| (p, num_pages))
         .map_err(|e| anyhow!(e))?;
 
-    Ok((StatusCode::OK, Json(json!({"data": bakeries,"cuurent_page": page, "pages": pages, "size": size}))))
+    Ok((
+        StatusCode::OK,
+        Json(json!({"data": bakeries,"cuurent_page": page, "pages": pages, "size": size})),
+    ))
 }
 
 pub async fn detail(
