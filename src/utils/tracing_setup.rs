@@ -23,7 +23,7 @@ pub fn init_tracing_subscriber() {
         // with() needs layer::SubscriberExt
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "lrs=debug".into()),
+                .unwrap_or_else(|_| "axes=debug".into()),
         )
         .with(
             tracing_subscriber::fmt::layer()
