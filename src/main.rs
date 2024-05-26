@@ -5,7 +5,7 @@ use axes::utils::tracing_setup::init_tracing_subscriber;
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error>{
     // log init
-    let _guard = init_tracing_subscriber();
+    init_tracing_subscriber();
 
     // server build
     let listener = tokio::net::TcpListener::bind("127.0.0.1:7878")
