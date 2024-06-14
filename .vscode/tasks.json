@@ -3,8 +3,8 @@
   "tasks": [
     {
       "type": "cargo",
-      "command": "run",
-      "args": [],
+      "command": "cargo",
+      "args": ["r"],
       "problemMatcher": ["$rustc"],
       "label": "cargo run axes",
       "presentation": {
@@ -26,8 +26,8 @@
     },
     {
       "type": "cargo",
-      "command": "build",
-      "args": [],
+      "command": "cargo",
+      "args": ["b"],
       "problemMatcher": ["$rustc"],
       "group": "build",
       "label": "cargo build axes",
