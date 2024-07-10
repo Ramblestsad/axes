@@ -8,7 +8,7 @@ async fn main() -> Result<(), anyhow::Error>{
     tracing_setup::init_tracing_subscriber();
 
     // server build
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:7878")
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:7878")
         .await
         .unwrap();
     tracing::info!(
