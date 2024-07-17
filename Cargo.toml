@@ -26,7 +26,7 @@ itertools = "0.13"
 axum = { version = "0.7" }
 axum-macros = "0.4"
 axum-extra = { version = "0.9", features = ["typed-header"] }
-axum-valid = "0.18"
+axum-valid = "0.19"
 headers = "0.4"
 sea-orm = { version = "0.12", features = [ "sqlx-postgres", "runtime-tokio-native-tls", "macros" ] }
 jsonwebtoken = { version = "9" }
