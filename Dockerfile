@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-ARG RUST_VERSION=1.79.0
+ARG RUST_VERSION=1.80.0
 ARG APP_NAME=axes
 
 ################################################################################
