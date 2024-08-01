@@ -18,7 +18,7 @@ impl AppConfig {
         let environment = std::env::var("ENVIRONMENT").unwrap_or_else(|_| "development".into());
 
         let cfg = config::Config::builder()
-            .add_source(File::with_name(&format!("settings/{}", environment)))
+            .add_source(File::with_name(&format!("./settings/{}", environment)))
             .build()?;
 
         cfg.try_deserialize()
