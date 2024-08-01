@@ -1,6 +1,5 @@
-use tracing_appender::rolling;
 use tracing_subscriber::{
-    fmt, fmt::writer::MakeWriterExt, layer::SubscriberExt, util::SubscriberInitExt,
+    fmt, layer::SubscriberExt, util::SubscriberInitExt,
 };
 
 /// Initialize tracing subscriber.
@@ -13,25 +12,11 @@ pub fn init_tracing_subscriber() {
     let timer = time::format_description::parse(format).unwrap();
     let time_format = fmt::time::OffsetTime::new(offset, timer);
 
-    let debug_log = rolling::never("./logs/", "debug.log")
-        .with_min_level(tracing::Level::INFO)
-        .with_max_level(tracing::Level::TRACE);
-    let error_log = rolling::never("./logs/", "error.log").with_max_level(tracing::Level::WARN);
-    let all_files = debug_log.and(error_log);
-
     tracing_subscriber::registry()
         // with() needs layer::SubscriberExt
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
                 .unwrap_or_else(|_| "axes=debug".into()),
-        )
-        .with(
-            tracing_subscriber::fmt::layer()
-                .with_writer(all_files)
-                .with_ansi(false)
-                .with_file(true)
-                .with_line_number(true)
-                .with_timer(time_format.clone()),
         )
         .with(
             tracing_subscriber::fmt::layer()
