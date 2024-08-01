@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use axum::routing::*;
 use axum::{middleware, Router};
-use dotenv::dotenv;
 use sea_orm::{Database, DatabaseConnection};
 use tower::ServiceBuilder;
 use tower_http::cors::{Any, CorsLayer};
@@ -26,15 +25,14 @@ pub async fn get_conn(state: &AppState) -> &DatabaseConnection {
 
 pub async fn route() -> Result<Router, anyhow::Error> {
     // config init
-    dotenv().ok();
-    let cfg = config::AppConfig::from_env()
+    let cfg = config::AppConfig::new()
         .expect("Configuration initialization failed, check pg .env settings.");
 
     // pg init
     let pg_url = cfg
         .pg
         .url
-        .unwrap_or("postgresql://melody:5161@localhost:5432".to_string());
+        .expect("Postgres URL not found, check settings.");
     let db = Database::connect(&pg_url).await?;
 
     // app init

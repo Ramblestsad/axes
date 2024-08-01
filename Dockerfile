@@ -30,6 +30,7 @@ RUN --mount=type=bind,source=src,target=src \
     --mount=type=cache,target=/app/target/ \
     --mount=type=cache,target=/usr/local/cargo/registry/ \
     --mount=type=bind,source=migration,target=migration \
+    --mount=type=bind,source=settings,target=settings \
     <<EOF
 set -e
 cargo build --locked --release
