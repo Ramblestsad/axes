@@ -39,7 +39,7 @@ pub async fn route() -> Result<Router, anyhow::Error> {
             .nest("/api/bakery", bakery_router())
             .fallback(global_404)
             .with_state(Arc::new(AppState { conn: db }))
-            .layer(TraceLayer::new_for_http())
+            .layer(TraceLayer::new_for_http()) // trace http request
             .layer(
                 CorsLayer::new()
                     .allow_origin(Any)
