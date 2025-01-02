@@ -1,7 +1,6 @@
 use std::fmt::Display;
 
 use anyhow::{anyhow, Result};
-use axum::async_trait;
 use axum::extract::FromRequestParts;
 use axum::http::request::Parts;
 use axum_extra::{
@@ -52,7 +51,6 @@ impl Display for Claims {
 
 // verify token and extract data from it (a kind of middleware),
 // whenever you try to extract claims in the handle it will first run this code
-#[async_trait]
 impl<S> FromRequestParts<S> for Claims
 where
     S: Send + Sync,
