@@ -33,7 +33,7 @@ axum-valid = "0.22"
 headers = "0.4"
 sea-orm = { version = "1", features = [ "sqlx-postgres", "runtime-tokio-native-tls", "macros" ] }
 jsonwebtoken = { version = "9" }
-bcrypt = "0.16"
+bcrypt = "0.17"
 tower = { version = "0.5", features = ["util"] }
 tower-http = { version = "0.6", features = ["trace", "cors", "fs"] }
 serde = { version = "1", features = ["derive"] }
