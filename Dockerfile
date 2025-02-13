@@ -3,13 +3,14 @@
 ################################################################################
 # Create a stage for building the application.
 
-ARG RUST_VERSION=1.80.0
+ARG RUST_VERSION=1.84.1
 ARG APP_NAME=axes
 FROM rust:${RUST_VERSION}-slim-bullseye AS build
 # openssl issues workaround
 RUN apt-get update -y && \
     apt-get install -y pkg-config make g++ libssl-dev && \
     rustup target add x86_64-unknown-linux-gnu
+
 ARG APP_NAME
 WORKDIR /app
 COPY . .
