@@ -41,6 +41,7 @@ serde_json = { version = "1" }
 once_cell = { version = "1" }
 dotenv = "0.15"
 config = "0.15"
+aide = "0.14"
 
 [dev-dependencies]
 pretty_assertions = "1"
