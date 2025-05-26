@@ -3,9 +3,8 @@
 ################################################################################
 # Create a stage for building the application.
 
-ARG RUST_VERSION=1.84.1
 ARG APP_NAME=axes
-FROM rust:${RUST_VERSION}-slim-bullseye AS build
+FROM rust:1.87-slim-bookworm AS build
 # openssl issues workaround
 RUN apt-get update -y && \
     apt-get install -y pkg-config make g++ libssl-dev && \
@@ -20,7 +19,7 @@ RUN --mount=type=cache,target=/app/target/ \
     cargo build --release && \
     cp ./target/release/$APP_NAME /bin/${APP_NAME}
 
-FROM debian:bullseye-slim AS final
+FROM debian:bookworm-slim AS final
 
 ARG UID=10001
 RUN adduser \
