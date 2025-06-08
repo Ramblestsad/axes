@@ -29,7 +29,7 @@ axum = { version = "0.8" }
 axum-macros = "0.5"
 axum-extra = { version = "0.10", features = ["typed-header"] }
 headers = "0.4"
-sea-orm = { version = "1", features = [ "sqlx-postgres", "runtime-tokio-native-tls", "macros" ] }
+sea-orm = { version = "1", features = [ "sqlx-postgres", "runtime-tokio-rustls", "macros" ] }
 jsonwebtoken = { version = "9" }
 tower = { version = "0.5", features = ["util"] }
 tower-http = { version = "0.6", features = ["trace", "cors", "fs"] }
