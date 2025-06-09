@@ -1,7 +1,7 @@
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
-use axum::Json;
-use serde_json::json;
+use serde::Serialize;
+use serde_json::Value;
 
 pub type AppResult<T> = Result<T, RespError>;
 
@@ -15,28 +15,26 @@ impl From<anyhow::Error> for RespError {
 
 impl IntoResponse for RespError {
     fn into_response(self) -> Response {
-        let status_code = if let Some(error) = self.0.downcast_ref::<AuthError>() {
+        let final_error = if let Some(error) = self.0.downcast_ref::<AuthError>() {
             match error {
-                AuthError::InvalidToken => (StatusCode::UNAUTHORIZED, "Invalid token"),
-                AuthError::MissingCredential => (StatusCode::BAD_REQUEST, "Missing credential"),
-                AuthError::TokenCreation => {
-                    (StatusCode::INTERNAL_SERVER_ERROR, "Failed to create token")
-                }
-                AuthError::WrongCredential => (StatusCode::UNAUTHORIZED, "Wrong credentials"),
-                AuthError::UserDoesNotExist => (StatusCode::UNAUTHORIZED, "User does not exist"),
-                AuthError::UserAlreadyExits => (StatusCode::BAD_REQUEST, "User already exists"),
+                AuthError::InvalidToken => AppError::new("Invalid token").with_status(StatusCode::UNAUTHORIZED),
+                AuthError::MissingCredential => AppError::new("Missing credential").with_status(StatusCode::BAD_REQUEST),
+                AuthError::TokenCreation => AppError::new("Failed to create token").with_status(StatusCode::INTERNAL_SERVER_ERROR),
+                AuthError::WrongCredential => AppError::new("Wrong credentials").with_status(StatusCode::UNAUTHORIZED),
+                AuthError::UserDoesNotExist => AppError::new("User does not exist").with_status(StatusCode::UNAUTHORIZED),
+                AuthError::UserAlreadyExits => AppError::new("User already exists").with_status(StatusCode::BAD_REQUEST),
             }
+        } else if let Some(error) = self.0.downcast_ref::<AppError>() {
+            error.clone()
         } else {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Error! Errors other than AuthError haven't been implemented yet, please check the code to see what",
-            )
+            AppError::new("Internal server error").with_status(StatusCode::INTERNAL_SERVER_ERROR)
         };
-        (status_code.0, Json(json!({ "error": status_code.1 }))).into_response()
+
+        final_error.into_response()
     }
 }
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, thiserror::Error, Serialize)]
 pub enum AuthError {
     #[error("Invalid token")]
     InvalidToken,
@@ -50,4 +48,45 @@ pub enum AuthError {
     UserDoesNotExist,
     #[error("User already exists")]
     UserAlreadyExits,
+}
+
+#[derive(Debug, Clone, thiserror::Error, Serialize)]
+#[error("App Errors")]
+pub struct AppError {
+    /// An error message.
+    pub error: String,
+    #[serde(skip)]
+    pub status: StatusCode,
+    /// Optional Additional error details.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error_details: Option<Value>,
+}
+
+impl AppError {
+    pub fn new(error: &str) -> Self {
+        Self {
+            error: error.to_string(),
+            status: StatusCode::BAD_REQUEST,
+            error_details: None,
+        }
+    }
+
+    pub fn with_status(mut self, status: StatusCode) -> Self {
+        self.status = status;
+        self
+    }
+
+    pub fn with_details(mut self, details: Value) -> Self {
+        self.error_details = Some(details);
+        self
+    }
+}
+
+impl IntoResponse for AppError {
+    fn into_response(self) -> axum::response::Response {
+        let status = self.status;
+        let mut res = axum::Json(self).into_response();
+        *res.status_mut() = status;
+        res
+    }
 }
