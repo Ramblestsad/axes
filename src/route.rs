@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use axum::routing::*;
-use axum::{middleware, Router};
+use axum::{Router, middleware};
 use sea_orm::{Database, DatabaseConnection};
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
