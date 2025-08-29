@@ -15,12 +15,6 @@ pub struct AppState {
     pub conn: DatabaseConnection,
 }
 
-pub async fn get_conn(state: &AppState) -> &DatabaseConnection {
-    let conn = &state.conn;
-
-    conn
-}
-
 pub async fn route() -> Result<Router, anyhow::Error> {
     // config init
     let cfg = config::AppConfig::new()
