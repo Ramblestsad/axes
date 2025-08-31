@@ -34,7 +34,7 @@ sea-orm = { version = "1", features = [
     "runtime-tokio-rustls",
     "macros",
 ] }
-regex ={ version = "*", features = ["std"]} # sea-orm error convertion workaround
+regex ={ version = "1", features = ["std"]} # sea-orm error conversion workaround
 jsonwebtoken = { version = "9" }
 tower = { version = "0.5", features = ["util"] }
 tower-http = { version = "0.6", features = ["trace", "cors", "fs"] }
