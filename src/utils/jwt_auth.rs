@@ -36,7 +36,7 @@ impl Keys {
 }
 
 // jwt claims
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Claims {
     pub sub: String,
     pub company: String,

@@ -35,7 +35,7 @@ sea-orm = { version = "1", features = [
     "macros",
 ] }
 regex ={ version = "1", features = ["std"]} # sea-orm error conversion workaround
-jsonwebtoken = { version = "9" }
+jsonwebtoken = { version = "10", features = ["rust_crypto"]}
 tower = { version = "0.5", features = ["util"] }
 tower-http = { version = "0.6", features = ["trace", "cors", "fs"] }
 serde = { version = "1", features = ["derive"] }
