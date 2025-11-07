@@ -27,7 +27,7 @@ itertools = "0.14"
 # axum libs
 axum = { version = "0.8" }
 axum-macros = "0.5"
-axum-extra = { version = "0.10", features = ["typed-header"] }
+axum-extra = { version = "0.12", features = ["typed-header"] }
 headers = "0.4"
 sea-orm = { version = "1", features = [
     "sqlx-postgres",
