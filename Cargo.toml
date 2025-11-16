@@ -1,6 +1,3 @@
-[workspace]
-members = [".", "migration"]
-
 [package]
 name = "axes"
 version = "0.1.0"
@@ -29,12 +26,9 @@ axum = { version = "0.8" }
 axum-macros = "0.5"
 axum-extra = { version = "0.12", features = ["typed-header"] }
 headers = "0.4"
-sea-orm = { version = "1", features = [
-    "sqlx-postgres",
-    "runtime-tokio-rustls",
-    "macros",
-] }
-regex ={ version = "1", features = ["std"]} # sea-orm error conversion workaround
+sqlx = { version = "0.8", features = [ "runtime-tokio-rustls", "any", "postgres" ] }
+# sea-orm error conversion workaround
+# regex ={ version = "1", features = ["std"]}
 jsonwebtoken = { version = "10", features = ["rust_crypto"]}
 tower = { version = "0.5", features = ["util"] }
 tower-http = { version = "0.6", features = ["trace", "cors", "fs"] }

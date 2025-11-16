@@ -1,8 +1,12 @@
 use std::sync::Arc;
 
+use axum::extract::{FromRef, FromRequestParts};
+use axum::http::StatusCode;
+use axum::http::request::Parts;
 use axum::routing::*;
 use axum::{Router, middleware};
-use sea_orm::{Database, DatabaseConnection};
+use sqlx::postgres::{PgPool, PgPoolOptions};
+use std::time::Duration;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
 
@@ -12,7 +16,29 @@ use crate::utils::jwt_auth::Claims;
 use crate::*;
 
 pub struct AppState {
-    pub conn: DatabaseConnection,
+    pub pg_pool: PgPool,
+}
+
+pub struct DbConn(pub sqlx::pool::PoolConnection<sqlx::Postgres>);
+
+impl<S> FromRequestParts<S> for DbConn
+where
+    Arc<AppState>: FromRef<S>,
+    S: Send + Sync,
+{
+    type Rejection = (StatusCode, String);
+
+    async fn from_request_parts(_parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
+        let app_state = Arc::<AppState>::from_ref(state);
+        let pool = &app_state.pg_pool;
+
+        let conn = pool
+            .acquire()
+            .await
+            .map_err(|err| (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()))?;
+
+        Ok(Self(conn))
+    }
 }
 
 pub async fn route() -> Result<Router, anyhow::Error> {
@@ -22,7 +48,13 @@ pub async fn route() -> Result<Router, anyhow::Error> {
 
     // pg init
     let pg_url = cfg.pg.url.expect("Postgres URL not found, check settings.");
-    let db = Database::connect(&pg_url).await?;
+    // set up connection pool
+    let pool = PgPoolOptions::new()
+        .max_connections(5)
+        .acquire_timeout(Duration::from_secs(3))
+        .connect(&pg_url)
+        .await
+        .expect("can't connect to database");
 
     // app init
     Ok(
@@ -32,7 +64,7 @@ pub async fn route() -> Result<Router, anyhow::Error> {
             .nest("/api/auth", auth_router())
             .nest("/api/bakery", bakery_router())
             .fallback(global_404)
-            .with_state(Arc::new(AppState { conn: db }))
+            .with_state(Arc::new(AppState { pg_pool: pool }))
             .layer(TraceLayer::new_for_http()) // trace http request
             .layer(
                 CorsLayer::new()
