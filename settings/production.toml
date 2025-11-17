@@ -1,2 +1,0 @@
-[pg]
-url = "postgresql://postgres:5161@host.docker.internal:5432/axes"
