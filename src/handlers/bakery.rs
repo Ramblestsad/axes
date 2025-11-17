@@ -29,20 +29,22 @@ pub async fn list(
 ) -> AppResult<impl IntoResponse> {
     let page = params.page.unwrap_or(1);
     let size = params.size.unwrap_or(10);
-    let offset = (page - 1) * size;
+    let offset = ((page - 1) * size) as i64;
 
-    let total: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM bakery")
+    let total = sqlx::query_scalar!(r#"SELECT COUNT(*) FROM bakery"#)
         .fetch_one(&mut *conn)
         .await
-        .map_err(|e| anyhow!(e))?;
+        .map_err(|e| anyhow!(e))?
+        .unwrap_or(0);
 
     let pages = (total as u64 + size - 1) / size;
 
-    let bakeries = sqlx::query_as::<_, Bakery>(
-        "SELECT id, name, profit_margin FROM bakery ORDER BY id LIMIT $1 OFFSET $2"
+    let bakeries = sqlx::query_as!(
+        Bakery,
+        r#"SELECT id, name, profit_margin FROM bakery ORDER BY id LIMIT $1 OFFSET $2"#,
+        size as i64,
+        offset
     )
-    .bind(size as i64)
-    .bind(offset as i64)
     .fetch_all(&mut *conn)
     .await
     .map_err(|e| anyhow!(e))?;
@@ -57,10 +59,11 @@ pub async fn detail(
     DbConn(mut conn): DbConn,
     Path(bid): Path<i32>,
 ) -> AppResult<impl IntoResponse> {
-    let bakery = sqlx::query_as::<_, Bakery>(
-        "SELECT id, name, profit_margin FROM bakery WHERE id = $1"
+    let bakery = sqlx::query_as!(
+        Bakery,
+        r#"SELECT id, name, profit_margin FROM bakery WHERE id = $1"#,
+        bid
     )
-    .bind(bid)
     .fetch_optional(&mut *conn)
     .await
     .map_err(|e| anyhow!(e))?;
@@ -75,11 +78,11 @@ pub async fn create(
     DbConn(mut conn): DbConn,
     Json(payload): Json<CreateDto>,
 ) -> AppResult<impl IntoResponse> {
-    sqlx::query(
-        "INSERT INTO bakery (name, profit_margin) VALUES ($1, $2)"
+    sqlx::query!(
+        r#"INSERT INTO bakery (name, profit_margin) VALUES ($1, $2)"#,
+        payload.name,
+        payload.profit_margin
     )
-    .bind(&payload.name)
-    .bind(payload.profit_margin)
     .execute(&mut *conn)
     .await
     .map_err(|e| anyhow!(e))?;
@@ -97,12 +100,12 @@ pub async fn update(
     DbConn(mut conn): DbConn,
     Json(payload): Json<UpdateDto>,
 ) -> AppResult<impl IntoResponse> {
-    sqlx::query(
-        "UPDATE bakery SET name = $1, profit_margin = $2 WHERE id = $3"
+    sqlx::query!(
+        r#"UPDATE bakery SET name = $1, profit_margin = $2 WHERE id = $3"#,
+        payload.name,
+        payload.profit_margin,
+        payload.id
     )
-    .bind(&payload.name)
-    .bind(payload.profit_margin)
-    .bind(payload.id)
     .execute(&mut *conn)
     .await
     .map_err(|e| anyhow!(e))?;
@@ -121,8 +124,7 @@ pub async fn delete(
     DbConn(mut conn): DbConn,
     Json(payload): Json<DeleteDto>,
 ) -> AppResult<impl IntoResponse> {
-    sqlx::query("DELETE FROM bakery WHERE id = $1")
-        .bind(payload.id)
+    sqlx::query!(r#"DELETE FROM bakery WHERE id = $1"#, payload.id)
         .execute(&mut *conn)
         .await
         .map_err(|e| anyhow!(e))?;

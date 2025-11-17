@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO bakery (name, profit_margin) VALUES ($1, $2)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Float8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "1f0fb179414470c72209bc08f3ac555e695c9365d7fa7dfd219d1b1157da5e02"
+}

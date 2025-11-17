@@ -10,3 +10,9 @@ Cargo.lock
 *.pdb
 .idea/
 migration/
+
+# Settings
+settings/*.toml
+!settings/*.example.toml
+
+.env

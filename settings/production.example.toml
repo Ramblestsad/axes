@@ -1,0 +1,2 @@
+[pg]
+url = "postgresql://username:password@host.docker.internal:5432/database_name"
