@@ -16,7 +16,7 @@ pub struct Params {
     pub size: Option<u64>,
 }
 
-#[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Bakery {
     pub id: i32,
     pub name: String,
