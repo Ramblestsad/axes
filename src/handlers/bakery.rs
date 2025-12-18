@@ -1,5 +1,5 @@
 use anyhow::anyhow;
-use axum::extract::{Json, Path, Query};
+use axum::extract::{Json, OriginalUri, Path, Query};
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 #[allow(unused_imports)]
@@ -7,8 +7,8 @@ use axum_macros::debug_handler;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
-use crate::route::DbConn;
 use crate::error::AppResult;
+use crate::route::DbConn;
 
 #[derive(Deserialize)]
 pub struct Params {
@@ -26,6 +26,7 @@ pub struct Bakery {
 pub async fn list(
     DbConn(mut conn): DbConn,
     Query(params): Query<Params>,
+    OriginalUri(uri): OriginalUri,
 ) -> AppResult<impl IntoResponse> {
     let page = params.page.unwrap_or(1);
     let size = params.size.unwrap_or(10);
@@ -37,7 +38,7 @@ pub async fn list(
         .map_err(|e| anyhow!(e))?
         .unwrap_or(0);
 
-    let pages = (total as u64 + size - 1) / size;
+    let pages = if total == 0 { 1 } else { (total as u64 + size - 1) / size };
 
     let bakeries = sqlx::query_as!(
         Bakery,
@@ -49,9 +50,28 @@ pub async fn list(
     .await
     .map_err(|e| anyhow!(e))?;
 
+    let path = uri.path();
+    let previous_page =
+        if page > 1 { Some(format!("{}?page={}&size={}", path, page - 1, size)) } else { None };
+
+    let next_page =
+        if page < pages { Some(format!("{}?page={}&size={}", path, page + 1, size)) } else { None };
+
+    let first_page = format!("{}?page=1&size={}", path, size);
+    let last_page = format!("{}?page={}&size={}", path, pages, size);
+
     Ok((
         StatusCode::OK,
-        Json(json!({"data": bakeries, "current_page": page, "pages": pages, "size": size})),
+        Json(json!({
+            "data": bakeries,
+            "current_page": page,
+            "pages": pages,
+            "size": size,
+            "previous_page": previous_page,
+            "next_page": next_page,
+            "first_page": first_page,
+            "last_page": last_page
+        })),
     ))
 }
 
@@ -59,18 +79,18 @@ pub async fn detail(
     DbConn(mut conn): DbConn,
     Path(bid): Path<i32>,
 ) -> AppResult<impl IntoResponse> {
-    let bakery = sqlx::query_as!(
-        Bakery,
-        r#"SELECT id, name, profit_margin FROM bakery WHERE id = $1"#,
-        bid
-    )
-    .fetch_optional(&mut *conn)
-    .await
-    .map_err(|e| anyhow!(e))?;
+    let bakery =
+        sqlx::query_as!(Bakery, r#"SELECT id, name, profit_margin FROM bakery WHERE id = $1"#, bid)
+            .fetch_optional(&mut *conn)
+            .await
+            .map_err(|e| anyhow!(e))?;
 
     match bakery {
         Some(b) => Ok((StatusCode::OK, Json(b))),
-        None => Ok((StatusCode::NOT_FOUND, Json(Bakery { id: 0, name: "Not found".to_string(), profit_margin: 0.0 }))),
+        None => Ok((
+            StatusCode::NOT_FOUND,
+            Json(Bakery { id: 0, name: "Not found".to_string(), profit_margin: 0.0 }),
+        )),
     }
 }
 
