@@ -34,5 +34,5 @@ pub fn init_tracing_subscriber() {
         // init() needs tracing_subscriber::util::SubscriberInitExt
         .init();
 
-    tracing::info!("Tracing initialized.");
+    // tracing::info!("Tracing initialized.");
 }
