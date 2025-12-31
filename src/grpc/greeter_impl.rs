@@ -8,14 +8,9 @@ pub struct GreeterSvc;
 
 #[tonic::async_trait]
 impl Greeter for GreeterSvc {
-    async fn say_hello(
-        &self,
-        req: Request<HelloRequest>,
-    ) -> Result<Response<HelloReply>, Status> {
+    async fn say_hello(&self, req: Request<HelloRequest>) -> Result<Response<HelloReply>, Status> {
         let name = req.into_inner().name;
-        Ok(Response::new(HelloReply {
-            message: format!("Hello {name}"),
-        }))
+        Ok(Response::new(HelloReply { message: format!("Hello {name}") }))
     }
 }
 
