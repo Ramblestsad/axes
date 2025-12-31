@@ -4,7 +4,7 @@
 # Create a stage for building the application.
 
 ARG APP_NAME=axes
-FROM rust:1.92-slim-bookworm AS build
+FROM rust:1-slim-bookworm AS build
 # openssl issues workaround
 RUN apt-get update -y && \
     apt-get install -y pkg-config make g++ libssl-dev && \

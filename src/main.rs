@@ -9,7 +9,7 @@ async fn main() -> Result<(), anyhow::Error> {
     tracing_setup::init_tracing_subscriber();
 
     // server build
-    let http_addr: std::net::SocketAddr = "0.0.0.0:8080".parse()?;
+    let http_addr: std::net::SocketAddr = "0.0.0.0:7878".parse()?;
     let grpc_addr: std::net::SocketAddr = "0.0.0.0:8787".parse()?;
     tracing::info!(
         "http listening on http://{} grpc listening on http://{}",
