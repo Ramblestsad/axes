@@ -25,9 +25,9 @@ spec:
           requests:
             cpu:    "100m"              # 最少要给 0.1 CPU
             memory: "128Mi"             # 最少要给 128Mi 内存
-          limits:
-            cpu:    "500m"              # 最多只能用到 0.5 CPU
-            memory: "1G"                # 最多只能用到 1GB 内存
+          # limits:
+          #   cpu:    "500m"              # 最多只能用到 0.5 CPU
+          #   memory: "1G"                # 最多只能用到 1GB 内存
 
 ---
 apiVersion: v1
