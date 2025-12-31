@@ -7,10 +7,10 @@ spec:
   selector:
     app: axes
   ports:
-  - name: http
-    port: 7878         # 集群内部访问端口
-    targetPort: http   # 转发到容器端口
-    # nodePort: 30078    # 集群外部访问端口 (30000–32767 范围内)
-  - name: grpc
-    port: 50051
-    targetPort: grpc
+    - name: http
+      port: 7878 # 集群内部访问端口
+      targetPort: http # 转发到容器端口
+      # nodePort: 30078    # 集群外部访问端口 (30000–32767 范围内)
+    - name: grpc
+      port: 50051
+      targetPort: grpc

@@ -7,24 +7,24 @@ metadata:
     app: axes
 spec:
   replicas: 2
-  selector:                             # Deployment 用它来识别哪些 Pod 归它管理
-    matchLabels:                        # 使用标签选择器的“等于匹配”模式
-      app: axes                         # 只要 Pod 上有 app=axes 标签，就属于这个 Deployment
-  template:                             # Pod 模板，Deployment 会根据它来创建 Pod
+  selector: # Deployment 用它来识别哪些 Pod 归它管理
+    matchLabels: # 使用标签选择器的“等于匹配”模式
+      app: axes # 只要 Pod 上有 app=axes 标签，就属于这个 Deployment
+  template: # Pod 模板，Deployment 会根据它来创建 Pod
     metadata:
-      labels:                           # 指定这些标签会被打到每个由该模板创建的 Pod 上
-        app: axes                       # 同样是 app=axes，确保它们能被上面的 selector 匹配
-    spec:                               # Pod 的运行时规范
-      containers:                       # 列表，定义该 Pod 中运行的容器们
-      - name: axes                      # 容器的名字，必须在 Pod 内唯一
-        image: axes:latest              # 本地 build 的镜像名
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 7878           # 容器内部暴露端口
-        resources:
-          requests:
-            cpu:    "100m"              # 最少要给 0.1 CPU
-            memory: "128Mi"             # 最少要给 128Mi 内存
-          # limits:
-          #   cpu:    "500m"              # 最多只能用到 0.5 CPU
-          #   memory: "1G"                # 最多只能用到 1GB 内存
+      labels: # 指定这些标签会被打到每个由该模板创建的 Pod 上
+        app: axes # 同样是 app=axes，确保它们能被上面的 selector 匹配
+    spec: # Pod 的运行时规范
+      containers: # 列表，定义该 Pod 中运行的容器们
+        - name: axes # 容器的名字，必须在 Pod 内唯一
+          image: axes:latest # 本地 build 的镜像名
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 7878 # 容器内部暴露端口
+          resources:
+            requests:
+              cpu: '100m' # 最少要给 0.1 CPU
+              memory: '128Mi' # 最少要给 128Mi 内存
+            # limits:
+            #   cpu:    "500m"              # 最多只能用到 0.5 CPU
+            #   memory: "1G"                # 最多只能用到 1GB 内存
