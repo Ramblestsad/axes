@@ -1,7 +1,7 @@
 use tokio::signal;
-use tracing::debug;
+use tokio_util::sync::CancellationToken;
 
-pub async fn shutdown_signal() {
+async fn shutdown_signal() {
     let ctrl_c = async {
         signal::ctrl_c()
             .await
@@ -20,7 +20,19 @@ pub async fn shutdown_signal() {
     let terminate = std::future::pending::<()>();
 
     tokio::select! {
-        _ = ctrl_c => {debug!("Signal received, starting graceful shutdown");},
-        _ = terminate => {debug!("Signal received, starting graceful shutdown");},
+        _ = ctrl_c => {tracing::debug!("Signal received, starting graceful shutdown");},
+        _ = terminate => {tracing::debug!("Signal received, starting graceful shutdown");},
     }
+}
+
+pub fn shutdown_token() -> CancellationToken {
+    let token = CancellationToken::new();
+    let t = token.clone();
+
+    tokio::spawn(async move {
+        shutdown_signal().await; // 复用已有的函数
+        t.cancel();
+    });
+
+    token
 }

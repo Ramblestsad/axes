@@ -11,6 +11,7 @@ description = "axum experimental scratch"
 [dependencies]
 # base libs
 tokio = { version = "1", features = ["full"] }
+tokio-util = "0.7"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = [
     "env-filter",
@@ -26,9 +27,13 @@ axum = { version = "0.8" }
 axum-macros = "0.5"
 axum-extra = { version = "0.12", features = ["typed-header"] }
 headers = "0.4"
+
+# tonic / grpc libs
+tonic = "0.14"
+tonic-prost = "0.14"
+prost = "0.14"
+
 sqlx = { version = "0.8", features = [ "runtime-tokio-rustls", "any", "postgres" ] }
-# sea-orm error conversion workaround
-# regex ={ version = "1", features = ["std"]}
 jsonwebtoken = { version = "10", features = ["rust_crypto"]}
 tower = { version = "0.5", features = ["util"] }
 tower-http = { version = "0.6", features = ["trace", "cors", "fs"] }
@@ -40,6 +45,11 @@ config = "0.15"
 [dev-dependencies]
 pretty_assertions = "1"
 #mockall = "0.13"
+
+[build-dependencies]
+# for grpc codegen
+tonic-prost-build = "0.14"
+protoc-bin-vendored = "3"
 
 [profile.dev]
 opt-level = 0
