@@ -2,6 +2,7 @@ use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use serde::Serialize;
 use serde_json::Value;
+use anyhow::Result;
 
 pub type AppResult<T> = Result<T, RespError>;
 
