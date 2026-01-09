@@ -1,17 +1,16 @@
 use std::fmt::Display;
 
-use anyhow::{anyhow, Result};
 use axum::extract::FromRequestParts;
 use axum::http::request::Parts;
 use axum_extra::{
-    headers::{authorization::Bearer, Authorization},
     TypedHeader,
+    headers::{Authorization, authorization::Bearer},
 };
-use jsonwebtoken::{decode, DecodingKey, EncodingKey, Validation};
+use jsonwebtoken::{DecodingKey, EncodingKey, Validation, decode};
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 
-use crate::error::{AuthError, RespError};
+use crate::error::{ApiError, AuthError};
 
 // secret key for JWT token
 pub static KEYS: Lazy<Keys> = Lazy::new(|| {
@@ -55,17 +54,17 @@ impl<S> FromRequestParts<S> for Claims
 where
     S: Send + Sync,
 {
-    type Rejection = RespError;
+    type Rejection = ApiError;
 
     async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
         // Extract the token from the authorization header
         let TypedHeader(Authorization(bearer)) =
             TypedHeader::<Authorization<Bearer>>::from_request_parts(parts, _state)
                 .await
-                .map_err(|_| RespError::from(anyhow!(AuthError::InvalidToken)))?;
+                .map_err(|_| AuthError::InvalidToken)?;
         // Decode the user data
         let token_data = decode::<Claims>(bearer.token(), &KEYS.decoding, &Validation::default())
-            .map_err(|_| RespError::from(anyhow!(AuthError::InvalidToken)))?;
+            .map_err(|_| AuthError::InvalidToken)?;
 
         Ok(token_data.claims)
     }

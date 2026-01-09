@@ -1,4 +1,3 @@
-use anyhow::anyhow;
 use axum::extract::{Json, OriginalUri, Path, Query};
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
@@ -32,11 +31,9 @@ pub async fn list(
     let size = params.size.unwrap_or(10);
     let offset = ((page - 1) * size) as i64;
 
-    let total = sqlx::query_scalar!(r#"SELECT COUNT(*) FROM bakery"#)
+    let total = sqlx::query_scalar!(r#"SELECT COUNT(*) as"total!" FROM bakery"#)
         .fetch_one(&mut *conn)
-        .await
-        .map_err(|e| anyhow!(e))?
-        .unwrap_or(0);
+        .await?;
 
     let pages = if total == 0 { 1 } else { (total as u64 + size - 1) / size };
 
@@ -47,8 +44,7 @@ pub async fn list(
         offset
     )
     .fetch_all(&mut *conn)
-    .await
-    .map_err(|e| anyhow!(e))?;
+    .await?;
 
     let path = uri.path();
     let previous_page =
@@ -82,8 +78,7 @@ pub async fn detail(
     let bakery =
         sqlx::query_as!(Bakery, r#"SELECT id, name, profit_margin FROM bakery WHERE id = $1"#, bid)
             .fetch_optional(&mut *conn)
-            .await
-            .map_err(|e| anyhow!(e))?;
+            .await?;
 
     match bakery {
         Some(b) => Ok((StatusCode::OK, Json(b))),
@@ -104,8 +99,7 @@ pub async fn create(
         payload.profit_margin
     )
     .execute(&mut *conn)
-    .await
-    .map_err(|e| anyhow!(e))?;
+    .await?;
 
     Ok(StatusCode::CREATED)
 }
@@ -127,8 +121,7 @@ pub async fn update(
         payload.id
     )
     .execute(&mut *conn)
-    .await
-    .map_err(|e| anyhow!(e))?;
+    .await?;
 
     Ok(StatusCode::OK)
 }
@@ -146,8 +139,7 @@ pub async fn delete(
 ) -> AppResult<impl IntoResponse> {
     sqlx::query!(r#"DELETE FROM bakery WHERE id = $1"#, payload.id)
         .execute(&mut *conn)
-        .await
-        .map_err(|e| anyhow!(e))?;
+        .await?;
 
     Ok(StatusCode::OK)
 }
