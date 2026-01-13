@@ -36,7 +36,7 @@ prost = "0.14"
 sqlx = { version = "0.8", features = [ "runtime-tokio-rustls", "any", "postgres" ] }
 jsonwebtoken = { version = "10", features = ["rust_crypto"]}
 tower = { version = "0.5", features = ["util"] }
-tower-http = { version = "0.6", features = ["trace", "cors", "fs"] }
+tower-http = { version = "0.6", features = ["trace", "cors", "fs", "catch-panic"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1" }
 once_cell = { version = "1" }

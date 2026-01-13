@@ -5,6 +5,7 @@ use axum::http::StatusCode;
 use axum::http::request::Parts;
 use axum::routing::*;
 use axum::{Router, middleware};
+use axum::response::IntoResponse;
 use sqlx::postgres::{PgPool, PgPoolOptions};
 use std::time::Duration;
 use tower_http::cors::{Any, CorsLayer};
@@ -66,6 +67,16 @@ pub async fn route() -> Result<Router, anyhow::Error> {
             .fallback(global_404)
             .with_state(Arc::new(AppState { pg_pool: pool }))
             .layer(TraceLayer::new_for_http()) // trace http request
+            .layer(tower_http::catch_panic::CatchPanicLayer::custom(|_err| {
+                // _err: Box<dyn Any + Send>
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    axum::Json(
+                        serde_json::json!( { "code": "panic", "message": "internal server error" }),
+                    ),
+                )
+                    .into_response()
+            })) // 将 panic 转成 500
             .layer(
                 CorsLayer::new()
                     .allow_origin(Any)
