@@ -10,7 +10,7 @@ use time::OffsetDateTime;
 
 use crate::error::{AppResult, AuthError};
 use crate::route::AppState;
-use crate::utils::jwt_auth::*;
+use crate::utils::jwt_auth;
 
 pub async fn register(State(_state): State<Arc<AppState>>) -> AppResult<()> {
     unimplemented!()
@@ -18,8 +18,8 @@ pub async fn register(State(_state): State<Arc<AppState>>) -> AppResult<()> {
 
 pub async fn login(
     State(_state): State<Arc<AppState>>,
-    Json(payload): Json<AuthPayload>,
-) -> AppResult<Json<AuthBody>> {
+    Json(payload): Json<jwt_auth::AuthPayload>,
+) -> AppResult<Json<jwt_auth::AuthBody>> {
     // Check if the user sent the credentials
     if payload.client_id.is_empty() || payload.client_secret.is_empty() {
         return Err(AuthError::MissingCredential)?;
@@ -28,22 +28,22 @@ pub async fn login(
     if payload.client_id != "Foo" || payload.client_secret != "bar" {
         return Err(AuthError::WrongCredential)?;
     }
-    let claims = Claims {
+    let claims = jwt_auth::Claims {
         sub: "rc@me.com".to_string(),
         company: "raincloud".to_string(),
         // Mandatory expiry time as UTC timestamp
         exp: get_timestamp_x_days_from_now(15), // 15 days
     };
     // Create the authorization token
-    let token = encode(&Header::default(), &claims, &KEYS.encoding)
+    let token = encode(&Header::default(), &claims, &jwt_auth::keys().encoding)
         .map_err(|_| AuthError::TokenCreation)?;
 
     // Send the authorized token
-    Ok(Json(AuthBody::new(token)))
+    Ok(Json(jwt_auth::AuthBody::new(token)))
 }
 
 pub async fn protected(
-    claims: Claims,
+    claims: jwt_auth::Claims,
     Extension(user): Extension<CurrentUser>,
 ) -> AppResult<String> {
     Ok(format!(

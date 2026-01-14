@@ -39,7 +39,6 @@ tower = { version = "0.5", features = ["util"] }
 tower-http = { version = "0.6", features = ["trace", "cors", "fs", "catch-panic"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1" }
-once_cell = { version = "1" }
 config = "0.15"
 
 [dev-dependencies]

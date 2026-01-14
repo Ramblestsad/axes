@@ -1,4 +1,5 @@
 use std::fmt::Display;
+use std::sync::OnceLock;
 
 use axum::extract::FromRequestParts;
 use axum::http::request::Parts;
@@ -7,18 +8,23 @@ use axum_extra::{
     headers::{Authorization, authorization::Bearer},
 };
 use jsonwebtoken::{DecodingKey, EncodingKey, Validation, decode};
-use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 
 use crate::error::{ApiError, AuthError};
 
 // secret key for JWT token
-pub static KEYS: Lazy<Keys> = Lazy::new(|| {
-    let secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| {
-        "548D2CD2E32A729C16BE57471F5B2C7305DADC6D04294482175A66DDEA62383D".to_owned()
-    });
-    Keys::new(secret.as_bytes())
-});
+pub static KEYS: OnceLock<Keys> = OnceLock::new();
+
+pub fn keys() -> &'static Keys {
+    KEYS.get_or_init(|| {
+        let secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| {
+            "548D2CD2E32A729C16BE57471F5B2C7305DADC6D04294482175A66DDEA62383D"
+                .to_owned()
+        });
+
+        Keys::new(secret.as_bytes())
+    })
+}
 
 pub struct Keys {
     pub encoding: EncodingKey,
@@ -63,7 +69,7 @@ where
                 .await
                 .map_err(|_| AuthError::InvalidToken)?;
         // Decode the user data
-        let token_data = decode::<Claims>(bearer.token(), &KEYS.decoding, &Validation::default())
+        let token_data = decode::<Claims>(bearer.token(), &keys().decoding, &Validation::default())
             .map_err(|_| AuthError::InvalidToken)?;
 
         Ok(token_data.claims)
