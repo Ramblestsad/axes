@@ -1,11 +1,13 @@
 use std::sync::Arc;
 
-use axum::extract::{FromRef, FromRequestParts};
+use axum::extract::{FromRef, FromRequestParts, Request};
 use axum::http::StatusCode;
 use axum::http::request::Parts;
-use axum::routing::*;
+use axum::middleware::Next;
+use axum::{Json, routing::*};
 use axum::{Router, middleware};
-use axum::response::IntoResponse;
+use axum::response::{IntoResponse, Response};
+use serde_json::json;
 use sqlx::postgres::{PgPool, PgPoolOptions};
 use std::time::Duration;
 use tower_http::cors::{Any, CorsLayer};
@@ -65,6 +67,7 @@ pub async fn route() -> Result<Router, anyhow::Error> {
             .nest("/api/auth", auth_router())
             .nest("/api/bakery", bakery_router())
             .fallback(global_404)
+            .layer(middleware::from_fn(global_405))
             .with_state(Arc::new(AppState { pg_pool: pool }))
             .layer(TraceLayer::new_for_http()) // trace http request
             .layer(tower_http::catch_panic::CatchPanicLayer::custom(|_err| {
@@ -86,6 +89,24 @@ pub async fn route() -> Result<Router, anyhow::Error> {
             .layer(middleware::from_fn(auth)), // current user middleware
     )
 }
+
+async fn global_405(req: Request, next: Next) -> Response {
+    let res = next.run(req).await;
+
+    if res.status() == StatusCode::METHOD_NOT_ALLOWED {
+        return (
+            StatusCode::METHOD_NOT_ALLOWED,
+            Json(json!({
+                "msg": "Method Not Allowed",
+                "code": 1005
+            })),
+        )
+            .into_response();
+    }
+
+    res
+}
+
 
 fn user_router() -> Router<Arc<AppState>> {
     // /api/users
