@@ -3,6 +3,5 @@
 - [ ] traceId 全链路传递示例。
 - [ ] redis 示例接口。
 - [ ] 引入rabbitmq，新建示例p/c。
-- [ ] 添加api-gateway 服务 by pangora。
 - [ ] 单体情况下的分库分表。
 - [ ] 微服务情况下的分库分表。
