@@ -3,7 +3,7 @@
 pub mod config;
 pub mod error;
 pub mod handlers;
-pub mod route;
+pub mod routes;
 pub mod utils;
 pub mod grpc;
 

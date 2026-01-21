@@ -1,4 +1,4 @@
-use axes::route::route;
+use axes::routes::route;
 use axes::utils::gracefully_shutdown::shutdown_token;
 use axes::utils::tracing_setup;
 

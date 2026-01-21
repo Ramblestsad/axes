@@ -5,7 +5,7 @@ use std::sync::Arc;
 use axum::extract::{Path, State};
 
 use crate::error::AppResult;
-use crate::route::AppState;
+use crate::routes::AppState;
 
 pub async fn list(State(state): State<Arc<AppState>>) -> AppResult<String> {
     Ok("Users List".into())

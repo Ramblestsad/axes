@@ -9,7 +9,7 @@ use serde::Serialize;
 use time::OffsetDateTime;
 
 use crate::error::{AppResult, AuthError};
-use crate::route::AppState;
+use crate::routes::AppState;
 use crate::utils::jwt_auth;
 
 pub async fn register(State(_state): State<Arc<AppState>>) -> AppResult<()> {

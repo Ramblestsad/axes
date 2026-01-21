@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use crate::error::AppResult;
-use crate::route::DbConn;
+use crate::routes::DbConn;
 
 #[derive(Deserialize)]
 pub struct Params {
