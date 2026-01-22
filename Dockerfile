@@ -12,6 +12,9 @@ RUN apt-get update -y && \
 
 ARG APP_NAME
 WORKDIR /app
+
+ENV SQLX_OFFLINE=true
+
 COPY . .
 
 RUN --mount=type=cache,target=/app/target/ \
