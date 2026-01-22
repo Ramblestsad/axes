@@ -1,11 +1,11 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT COUNT(*) FROM bakery",
+  "query": "SELECT COUNT(*) as\"total!\" FROM bakery",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "count",
+        "name": "total!",
         "type_info": "Int8"
       }
     ],
@@ -16,5 +16,5 @@
       null
     ]
   },
-  "hash": "24c39b5398efc4937e5773e172f416ecc38a62cd76fbf57891879590476f39bd"
+  "hash": "286b00e7cbda3b1eedd5e0c5dc27fece434fd13f7be583e81c1dfa929d9b7863"
 }
