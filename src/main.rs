@@ -8,33 +8,44 @@ async fn main() -> Result<(), anyhow::Error> {
     tracing_setup::init_tracing_subscriber();
 
     // server build
-    let http_addr: std::net::SocketAddr = "0.0.0.0:5173".parse()?;
-    let grpc_addr: std::net::SocketAddr = "0.0.0.0:5000".parse()?;
-    tracing::info!("http listening on http://{} grpc listening on http://{}", http_addr, grpc_addr);
+    let http_addr: std::net::SocketAddr = std::env::var("AXES_HTTP_ADDR")
+        .unwrap_or_else(|_| "0.0.0.0:5173".to_string())
+        .parse()?;
+    let grpc_addr: std::net::SocketAddr = std::env::var("AXES_GRPC_ADDR")
+        .unwrap_or_else(|_| "0.0.0.0:5273".to_string())
+        .parse()?;
 
     let token = shutdown_token();
+    let router = route().await?;
 
-    let grpc_token = token.clone();
-    let grpc_task = tokio::spawn(async move {
-        let t = grpc_token.clone();
-        axes::grpc::router()
-            .serve_with_shutdown(grpc_addr, async move { t.cancelled().await })
-            .await?;
-        anyhow::Ok(())
-    });
+    tracing::info!("http listening on http://{} grpc listening on http://{}", http_addr, grpc_addr);
 
-    let app = route().await?;
-    let http_task = tokio::spawn(async move {
-        let t = token.clone();
-        let listener = tokio::net::TcpListener::bind(http_addr).await?;
-        axum::serve(listener, app)
-            .with_graceful_shutdown(async move { t.cancelled().await })
-            .await?;
-        anyhow::Ok(())
-    });
-    let (r1, r2) = tokio::join!(http_task, grpc_task);
-    r1??;
-    r2??;
+    tokio::try_join!(
+        run_http(http_addr, router, token.clone()),
+        run_grpc(grpc_addr, token.clone()),
+    )?;
 
+    Ok(())
+}
+
+async fn run_http(
+    http_addr: std::net::SocketAddr,
+    router: axum::Router,
+    token: tokio_util::sync::CancellationToken,
+) -> anyhow::Result<()> {
+    let listener = tokio::net::TcpListener::bind(http_addr).await?;
+    axum::serve(listener, router)
+        .with_graceful_shutdown(async move { token.cancelled().await })
+        .await?;
+    Ok(())
+}
+
+async fn run_grpc(
+    grpc_addr: std::net::SocketAddr,
+    token: tokio_util::sync::CancellationToken,
+) -> anyhow::Result<()> {
+    axes::grpc::router()
+        .serve_with_shutdown(grpc_addr, async move { token.cancelled().await })
+        .await?;
     Ok(())
 }
