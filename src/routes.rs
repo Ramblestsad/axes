@@ -4,9 +4,9 @@ use axum::extract::{FromRef, FromRequestParts, Request};
 use axum::http::StatusCode;
 use axum::http::request::Parts;
 use axum::middleware::Next;
+use axum::response::{IntoResponse, Response};
 use axum::{Json, routing::*};
 use axum::{Router, middleware};
-use axum::response::{IntoResponse, Response};
 use serde_json::json;
 use sqlx::postgres::{PgPool, PgPoolOptions};
 use std::time::Duration;
@@ -106,7 +106,6 @@ async fn global_405(req: Request, next: Next) -> Response {
 
     res
 }
-
 
 fn user_router() -> Router<Arc<AppState>> {
     // /api/users
