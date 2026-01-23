@@ -2,6 +2,7 @@
 - [ ] 引入otel方便云平台后端collect logs, metric, tracing。
 - [ ] traceId 全链路传递示例。
 - [ ] redis 示例接口。
+- [ ] 添加websocket SignalR 接口，演示视频直播。
 - [ ] 引入rabbitmq，新建示例p/c。
 - [ ] 单体情况下的分库分表。
 - [ ] 微服务情况下的分库分表。
