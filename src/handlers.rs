@@ -1,5 +1,7 @@
-use axum::http::StatusCode;
-use axum::response::IntoResponse;
+use axum::{
+    http::StatusCode,
+    response::IntoResponse,
+};
 
 pub mod auth;
 pub mod bakery;

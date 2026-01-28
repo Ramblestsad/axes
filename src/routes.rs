@@ -1,22 +1,49 @@
-use std::sync::Arc;
+use std::{
+    sync::Arc,
+    time::Duration,
+};
 
-use axum::extract::{FromRef, FromRequestParts, Request};
-use axum::http::StatusCode;
-use axum::http::request::Parts;
-use axum::middleware::Next;
-use axum::response::{IntoResponse, Response};
-use axum::{Json, routing::*};
-use axum::{Router, middleware};
+use axum::{
+    Json,
+    Router,
+    extract::{
+        FromRef,
+        FromRequestParts,
+        Request,
+    },
+    http::{
+        StatusCode,
+        request::Parts,
+    },
+    middleware,
+    middleware::Next,
+    response::{
+        IntoResponse,
+        Response,
+    },
+    routing::*,
+};
 use serde_json::json;
-use sqlx::postgres::{PgPool, PgPoolOptions};
-use std::time::Duration;
-use tower_http::cors::{Any, CorsLayer};
-use tower_http::trace::TraceLayer;
+use sqlx::postgres::{
+    PgPool,
+    PgPoolOptions,
+};
+use tower_http::{
+    cors::{
+        Any,
+        CorsLayer,
+    },
+    trace::TraceLayer,
+};
 
-use crate::handlers::auth::auth;
-use crate::handlers::*;
-use crate::utils::jwt_auth::Claims;
-use crate::*;
+use crate::{
+    handlers::{
+        auth::auth,
+        *,
+    },
+    utils::jwt_auth::Claims,
+    *,
+};
 
 pub struct AppState {
     pub pg_pool: PgPool,

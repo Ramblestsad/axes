@@ -1,5 +1,10 @@
-use axum::http::StatusCode;
-use axum::response::{IntoResponse, Response};
+use axum::{
+    http::StatusCode,
+    response::{
+        IntoResponse,
+        Response,
+    },
+};
 use serde::Serialize;
 use serde_json::Value;
 
@@ -41,21 +46,31 @@ impl IntoResponse for ApiError {
     fn into_response(self) -> Response {
         let err = self.0;
 
-        let final_error =  match err.downcast::<AuthError>() {
+        let final_error = match err.downcast::<AuthError>() {
             Ok(auth) => match auth {
-                AuthError::InvalidToken => AppError::new("Invalid token").with_status(StatusCode::UNAUTHORIZED),
-                AuthError::MissingCredential => AppError::new("Missing credential").with_status(StatusCode::BAD_REQUEST),
-                AuthError::TokenCreation => AppError::new("Failed to create token").with_status(StatusCode::INTERNAL_SERVER_ERROR),
-                AuthError::WrongCredential => AppError::new("Wrong credentials").with_status(StatusCode::UNAUTHORIZED),
-                AuthError::UserDoesNotExist => AppError::new("User does not exist").with_status(StatusCode::UNAUTHORIZED),
-                AuthError::UserAlreadyExits => AppError::new("User already exists").with_status(StatusCode::BAD_REQUEST),
+                AuthError::InvalidToken => {
+                    AppError::new("Invalid token").with_status(StatusCode::UNAUTHORIZED)
+                }
+                AuthError::MissingCredential => {
+                    AppError::new("Missing credential").with_status(StatusCode::BAD_REQUEST)
+                }
+                AuthError::TokenCreation => AppError::new("Failed to create token")
+                    .with_status(StatusCode::INTERNAL_SERVER_ERROR),
+                AuthError::WrongCredential => {
+                    AppError::new("Wrong credentials").with_status(StatusCode::UNAUTHORIZED)
+                }
+                AuthError::UserDoesNotExist => {
+                    AppError::new("User does not exist").with_status(StatusCode::UNAUTHORIZED)
+                }
+                AuthError::UserAlreadyExits => {
+                    AppError::new("User already exists").with_status(StatusCode::BAD_REQUEST)
+                }
             },
             Err(err) => match err.downcast::<AppError>() {
                 Ok(app) => app,
                 Err(_) => AppError::new("Internal server error")
                     .with_status(StatusCode::INTERNAL_SERVER_ERROR),
-
-            }
+            },
         };
 
         final_error.into_response()
@@ -92,11 +107,7 @@ pub struct AppError {
 
 impl AppError {
     pub fn new(error: &str) -> Self {
-        Self {
-            error: error.to_string(),
-            status: StatusCode::BAD_REQUEST,
-            error_details: None,
-        }
+        Self { error: error.to_string(), status: StatusCode::BAD_REQUEST, error_details: None }
     }
 
     pub fn with_status(mut self, status: StatusCode) -> Self {

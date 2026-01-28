@@ -1,3 +1,4 @@
+unstable_features = true
 max_width = 100
 comment_width = 100
 wrap_comments = true
@@ -5,9 +6,18 @@ newline_style = "Unix"
 chain_width = 60
 
 reorder_imports = true
-group_imports = "StdExternalCrate"
-imports_granularity = "Module"
-imports_layout = "HorizontalVertical"
 use_field_init_shorthand = true
 use_small_heuristics = "Max"
-fn_args_layout = "Tall"
+fn_params_layout = "Tall"
+
+# 关键：允许 use 变成 block，而不是压成一行
+imports_granularity = "Crate"
+
+# use 块内部必须是多行
+imports_layout = "Vertical"
+
+# 保留尾逗号（让 rustfmt 不会尝试压回去）
+trailing_comma = "Vertical"
+
+# 控制嵌套 use 的对齐方式（推荐）
+group_imports = "StdExternalCrate"

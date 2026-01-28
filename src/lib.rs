@@ -2,10 +2,10 @@
 
 pub mod config;
 pub mod error;
+pub mod grpc;
 pub mod handlers;
 pub mod routes;
 pub mod utils;
-pub mod grpc;
 
 #[cfg(test)]
 mod tests;

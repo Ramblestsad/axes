@@ -1,6 +1,10 @@
-use axes::routes::route;
-use axes::utils::gracefully_shutdown::shutdown_token;
-use axes::utils::tracing_setup;
+use axes::{
+    routes::route,
+    utils::{
+        gracefully_shutdown::shutdown_token,
+        tracing_setup,
+    },
+};
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {

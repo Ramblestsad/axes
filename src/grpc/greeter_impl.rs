@@ -1,7 +1,17 @@
-use tonic::{Request, Response, Status};
+use tonic::{
+    Request,
+    Response,
+    Status,
+};
 
-use crate::grpc::greeter::greeter_server::{Greeter, GreeterServer};
-use crate::grpc::greeter::{HelloReply, HelloRequest};
+use crate::grpc::greeter::{
+    HelloReply,
+    HelloRequest,
+    greeter_server::{
+        Greeter,
+        GreeterServer,
+    },
+};
 
 #[derive(Default)]
 pub struct GreeterSvc;

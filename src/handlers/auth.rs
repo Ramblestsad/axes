@@ -1,16 +1,30 @@
 use std::sync::Arc;
 
-use axum::Extension;
-use axum::extract::{Json, Request, State};
-use axum::middleware::Next;
-use axum::response::Response;
-use jsonwebtoken::{Header, encode};
+use axum::{
+    Extension,
+    extract::{
+        Json,
+        Request,
+        State,
+    },
+    middleware::Next,
+    response::Response,
+};
+use jsonwebtoken::{
+    Header,
+    encode,
+};
 use serde::Serialize;
 use time::OffsetDateTime;
 
-use crate::error::{AppResult, AuthError};
-use crate::routes::AppState;
-use crate::utils::jwt_auth;
+use crate::{
+    error::{
+        AppResult,
+        AuthError,
+    },
+    routes::AppState,
+    utils::jwt_auth,
+};
 
 pub async fn register(State(_state): State<Arc<AppState>>) -> AppResult<()> {
     unimplemented!()
