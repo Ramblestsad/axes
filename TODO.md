@@ -2,7 +2,7 @@
 - [ ] 引入otel export 到 collector: logs, metric, trace_id
 - [ ] redis 示例接口。
 - [ ] 添加axum ws 示例接口。
-- [ ] 引入rabbitmq，新建示例接口，Woker项目作为消费者消费消息。
+- [ ] 引入rabbitmq，新建示例接口，Worker项目作为消费者消费消息。
 - [ ] 单体情况下主从读写分离
 - [ ] 单体情况下的分库分表。
 - [ ] 微服务情况下的分库分表。
