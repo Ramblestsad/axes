@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+Please refer to me as "哥哥" in your responses.
+
 ## Project Structure & Module Organization
 - `src/` contains the Axum HTTP service, gRPC server, handlers, routes, config, and utilities.
 - `src/handlers/` hosts HTTP handlers grouped by domain (auth, users, bakery).
