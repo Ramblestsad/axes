@@ -1,8 +1,8 @@
-- [ ] 改造tracing使其输出符合otel的json结构日志。
+- [ ] 改造tracing使其输出符合otel的json结构日志, dev环境还是可读格式。
 - [ ] 引入otel export 到 collector: logs, metric, trace_id
 - [ ] redis 示例接口。
-- [ ] 添加axum ws 示例接口。
-- [ ] 引入rabbitmq，新建示例接口，Worker项目作为消费者消费消息。
+- [ ] axum ws 示例接口。
+- [ ] 引入rabbitmq，新建示例接口，workers项目作为消费者。
 - [ ] 数据库主从读写分离示例。
 - [ ] 数据库集群应用对接示例。
 - [ ] 基于Pingora的api gateway示例。
