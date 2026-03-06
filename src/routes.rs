@@ -1,46 +1,23 @@
-use std::{
-    sync::Arc,
-    time::Duration,
-};
+use std::{sync::Arc, time::Duration};
 
 use axum::{
-    Json,
-    Router,
-    extract::{
-        FromRef,
-        FromRequestParts,
-        Request,
-    },
-    http::{
-        StatusCode,
-        request::Parts,
-    },
+    Json, Router,
+    extract::{FromRef, FromRequestParts, Request},
+    http::{StatusCode, request::Parts},
     middleware,
     middleware::Next,
-    response::{
-        IntoResponse,
-        Response,
-    },
+    response::{IntoResponse, Response},
     routing::*,
 };
 use serde_json::json;
-use sqlx::postgres::{
-    PgPool,
-    PgPoolOptions,
-};
+use sqlx::postgres::{PgPool, PgPoolOptions};
 use tower_http::{
-    cors::{
-        Any,
-        CorsLayer,
-    },
+    cors::{Any, CorsLayer},
     trace::TraceLayer,
 };
 
 use crate::{
-    handlers::{
-        auth::auth,
-        *,
-    },
+    handlers::{auth::auth, *},
     utils::jwt_auth::Claims,
     *,
 };

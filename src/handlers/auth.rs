@@ -2,26 +2,16 @@ use std::sync::Arc;
 
 use axum::{
     Extension,
-    extract::{
-        Json,
-        Request,
-        State,
-    },
+    extract::{Json, Request, State},
     middleware::Next,
     response::Response,
 };
-use jsonwebtoken::{
-    Header,
-    encode,
-};
+use jsonwebtoken::{Header, encode};
 use serde::Serialize;
 use time::OffsetDateTime;
 
 use crate::{
-    error::{
-        AppResult,
-        AuthError,
-    },
+    error::{AppResult, AuthError},
     routes::AppState,
     utils::jwt_auth,
 };

@@ -1,34 +1,14 @@
-use std::{
-    fmt::Display,
-    sync::OnceLock,
-};
+use std::{fmt::Display, sync::OnceLock};
 
-use axum::{
-    extract::FromRequestParts,
-    http::request::Parts,
-};
+use axum::{extract::FromRequestParts, http::request::Parts};
 use axum_extra::{
     TypedHeader,
-    headers::{
-        Authorization,
-        authorization::Bearer,
-    },
+    headers::{Authorization, authorization::Bearer},
 };
-use jsonwebtoken::{
-    DecodingKey,
-    EncodingKey,
-    Validation,
-    decode,
-};
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use jsonwebtoken::{DecodingKey, EncodingKey, Validation, decode};
+use serde::{Deserialize, Serialize};
 
-use crate::error::{
-    ApiError,
-    AuthError,
-};
+use crate::error::{ApiError, AuthError};
 
 // secret key for JWT token
 pub static KEYS: OnceLock<Keys> = OnceLock::new();

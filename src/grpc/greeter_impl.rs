@@ -1,16 +1,8 @@
-use tonic::{
-    Request,
-    Response,
-    Status,
-};
+use tonic::{Request, Response, Status};
 
 use crate::grpc::greeter::{
-    HelloReply,
-    HelloRequest,
-    greeter_server::{
-        Greeter,
-        GreeterServer,
-    },
+    HelloReply, HelloRequest,
+    greeter_server::{Greeter, GreeterServer},
 };
 
 #[derive(Default)]

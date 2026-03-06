@@ -14,7 +14,7 @@ fn_params_layout = "Tall"
 imports_granularity = "Crate"
 
 # use 块内部必须是多行
-imports_layout = "Vertical"
+imports_layout = "Mixed"
 
 # 保留尾逗号（让 rustfmt 不会尝试压回去）
 trailing_comma = "Vertical"

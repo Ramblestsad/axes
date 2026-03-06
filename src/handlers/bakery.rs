@@ -1,25 +1,14 @@
 use axum::{
-    extract::{
-        Json,
-        OriginalUri,
-        Path,
-        Query,
-    },
+    extract::{Json, OriginalUri, Path, Query},
     http::StatusCode,
     response::IntoResponse,
 };
 #[allow(unused_imports)]
 use axum_macros::debug_handler;
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 
-use crate::{
-    error::AppResult,
-    routes::DbConn,
-};
+use crate::{error::AppResult, routes::DbConn};
 
 #[derive(Deserialize)]
 pub struct Params {

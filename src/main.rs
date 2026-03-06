@@ -1,9 +1,6 @@
 use axes::{
     routes::route,
-    utils::{
-        gracefully_shutdown::shutdown_token,
-        tracing_setup,
-    },
+    utils::{gracefully_shutdown::shutdown_token, tracing_setup},
 };
 
 #[tokio::main]
