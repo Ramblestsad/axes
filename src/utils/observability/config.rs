@@ -43,12 +43,8 @@ impl ObservabilitySettings {
         }
     }
 
-    pub(super) fn is_development(&self) -> bool {
-        self.environment == "development"
-    }
-
     pub(super) fn should_enable_exporters(&self) -> bool {
-        !self.is_development() && self.otlp_endpoint.is_some()
+        self.otlp_endpoint.is_some()
     }
 
     pub(super) fn resource(&self) -> Resource {
@@ -68,4 +64,43 @@ fn parse_trace_sampler_arg(value: Option<String>) -> f64 {
         .and_then(|raw| raw.trim().parse::<f64>().ok())
         .map(|ratio| ratio.clamp(0.0, 1.0))
         .unwrap_or(1.0)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{ObservabilitySettings, parse_trace_sampler_arg};
+    use crate::utils::observability::otlp::OtlpProtocol;
+
+    fn make_settings(environment: &str, endpoint: Option<&str>) -> ObservabilitySettings {
+        ObservabilitySettings {
+            environment: environment.to_string(),
+            service_name: "axes".to_string(),
+            service_version: "0.1.0".to_string(),
+            otlp_endpoint: endpoint.map(str::to_string),
+            otlp_protocol: OtlpProtocol::Grpc,
+            otlp_headers: Vec::new(),
+            trace_sampler: "parentbased_traceidratio".to_string(),
+            trace_sampler_arg: 1.0,
+        }
+    }
+
+    #[test]
+    fn enables_exporters_when_endpoint_exists_even_in_development() {
+        let settings = make_settings("development", Some("http://localhost:4317"));
+
+        assert!(settings.should_enable_exporters());
+    }
+
+    #[test]
+    fn disables_exporters_when_endpoint_is_missing() {
+        let settings = make_settings("production", None);
+
+        assert!(!settings.should_enable_exporters());
+    }
+
+    #[test]
+    fn clamps_trace_sampler_ratio() {
+        assert_eq!(parse_trace_sampler_arg(Some("2.5".to_string())), 1.0);
+        assert_eq!(parse_trace_sampler_arg(Some("-1".to_string())), 0.0);
+    }
 }

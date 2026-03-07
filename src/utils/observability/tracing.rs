@@ -1,6 +1,6 @@
 use axum::http::HeaderMap;
 use opentelemetry::{
-    global,
+    Value, global,
     trace::{SpanContext, TraceContextExt},
 };
 use opentelemetry_http::HeaderExtractor;
@@ -48,6 +48,18 @@ pub(super) fn attach_parent_context_from_headers(span: &tracing::Span, headers: 
 
     if parent_span_context.is_valid() {
         let _ = span.set_parent(parent_context);
+    }
+}
+
+pub(super) fn set_span_status(
+    span: &tracing::Span,
+    key: &'static str,
+    value: impl Into<Value>,
+    is_error: bool,
+) {
+    span.set_attribute(key, value);
+    if is_error {
+        span.set_attribute("otel.status_code", "ERROR");
     }
 }
 

@@ -32,6 +32,7 @@ opentelemetry-otlp = { version = "0.31", default-features = false, features = [
     "reqwest-client",
 ] }
 opentelemetry-http = "0.31"
+http-body = "1"
 
 # axum libs
 axum = { version = "0.8" }

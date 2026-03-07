@@ -6,12 +6,14 @@ use axum::{
     response::Response,
 };
 use tracing::Instrument;
-use tracing_opentelemetry::OpenTelemetrySpanExt;
 
-use super::{metrics::record_http_metrics, tracing::attach_parent_context_from_headers};
+use super::{
+    metrics::record_http_metrics,
+    tracing::{attach_parent_context_from_headers, set_span_status},
+};
 
 pub async fn http_observability(req: Request, next: Next) -> Response {
-    let method = req.method().clone();
+    let method = req.method().to_string();
     let uri_path = req.uri().path().to_string();
     let route = req
         .extensions()
@@ -37,12 +39,14 @@ pub async fn http_observability(req: Request, next: Next) -> Response {
     let status = response.status();
     let elapsed = started_at.elapsed();
 
-    span.set_attribute("http.response.status_code", i64::from(status.as_u16()));
-    if status.is_server_error() {
-        span.set_attribute("otel.status_code", "ERROR");
-    }
+    set_span_status(
+        &span,
+        "http.response.status_code",
+        i64::from(status.as_u16()),
+        status.is_server_error(),
+    );
 
-    record_http_metrics(&method.to_string(), &route, status.as_u16(), elapsed.as_secs_f64());
+    record_http_metrics(&method, &route, status.as_u16(), elapsed.as_secs_f64());
     tracing::info!(
         parent: &span,
         http.status_code = status.as_u16(),

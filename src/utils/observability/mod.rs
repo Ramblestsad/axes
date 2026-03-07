@@ -15,7 +15,7 @@ pub use grpc::grpc_observability_layer;
 pub use http::http_observability;
 
 pub struct ObservabilityGuard {
-    tracer_provider: Option<SdkTracerProvider>,
+    tracer_provider: SdkTracerProvider,
     meter_provider: Option<SdkMeterProvider>,
 }
 
@@ -25,9 +25,7 @@ impl ObservabilityGuard {
             meter_provider.shutdown()?;
         }
 
-        if let Some(tracer_provider) = self.tracer_provider {
-            tracer_provider.shutdown()?;
-        }
+        self.tracer_provider.shutdown()?;
 
         Ok(())
     }
@@ -36,31 +34,16 @@ impl ObservabilityGuard {
 pub fn init_observability() -> ObservabilityGuard {
     let settings = config::ObservabilitySettings::from_env();
     let mut warnings = Vec::new();
-    let tracer_provider = if settings.is_development() {
-        None
-    } else {
-        Some(tracing::build_tracer_provider(&settings, &mut warnings))
-    };
-
-    let tracer = tracer_provider
-        .as_ref()
-        .map(|provider| provider.tracer("axes"));
+    let tracer_provider = tracing::build_tracer_provider(&settings, &mut warnings);
+    let tracer = tracer_provider.tracer("axes");
     let meter_provider = if settings.should_enable_exporters() {
         metrics::build_meter_provider(&settings, &mut warnings)
     } else {
-        if !settings.is_development() && settings.otlp_endpoint.is_none() {
-            warnings.push(
-                "OTEL exporter disabled because OTEL_EXPORTER_OTLP_ENDPOINT is not configured"
-                    .to_string(),
-            );
-        }
         None
     };
 
     global::set_text_map_propagator(TraceContextPropagator::new());
-    if let Some(provider) = tracer_provider.as_ref() {
-        global::set_tracer_provider(provider.clone());
-    }
+    global::set_tracer_provider(tracer_provider.clone());
 
     if let Some(provider) = meter_provider.as_ref() {
         global::set_meter_provider(provider.clone());
