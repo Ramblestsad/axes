@@ -1,12 +1,11 @@
 use axes::{
     routes::route,
-    utils::{gracefully_shutdown::shutdown_token, tracing_setup},
+    utils::{gracefully_shutdown::shutdown_token, observability},
 };
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
-    // log init
-    tracing_setup::init_tracing_subscriber();
+    let observability = observability::init_observability();
 
     // server build
     let http_addr: std::net::SocketAddr = std::env::var("AXES_HTTP_ADDR")
@@ -25,6 +24,8 @@ async fn main() -> Result<(), anyhow::Error> {
         run_http(http_addr, router, token.clone()),
         run_grpc(grpc_addr, token.clone()),
     )?;
+
+    observability.shutdown()?;
 
     Ok(())
 }
@@ -45,8 +46,6 @@ async fn run_grpc(
     grpc_addr: std::net::SocketAddr,
     token: tokio_util::sync::CancellationToken,
 ) -> anyhow::Result<()> {
-    axes::grpc::router()
-        .serve_with_shutdown(grpc_addr, async move { token.cancelled().await })
-        .await?;
+    axes::grpc::serve(grpc_addr, token).await?;
     Ok(())
 }

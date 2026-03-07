@@ -11,14 +11,11 @@ use axum::{
 };
 use serde_json::json;
 use sqlx::postgres::{PgPool, PgPoolOptions};
-use tower_http::{
-    cors::{Any, CorsLayer},
-    trace::TraceLayer,
-};
+use tower_http::cors::{Any, CorsLayer};
 
 use crate::{
     handlers::{auth::auth, *},
-    utils::jwt_auth::Claims,
+    utils::{jwt_auth::Claims, observability},
     *,
 };
 
@@ -64,34 +61,32 @@ pub async fn route() -> Result<Router, anyhow::Error> {
         .expect("can't connect to database");
 
     // app init
-    Ok(
-        Router::new()
-            .route("/", get(index))
-            .nest("/api/users", user_router())
-            .nest("/api/auth", auth_router())
-            .nest("/api/bakery", bakery_router())
-            .fallback(global_404)
-            .layer(middleware::from_fn(global_405))
-            .with_state(Arc::new(AppState { pg_pool: pool }))
-            .layer(TraceLayer::new_for_http()) // trace http request
-            .layer(tower_http::catch_panic::CatchPanicLayer::custom(|_err| {
-                // _err: Box<dyn Any + Send>
-                (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    axum::Json(
-                        serde_json::json!( { "code": "panic", "message": "internal server error" }),
-                    ),
-                )
-                    .into_response()
-            })) // 将 panic 转成 500
-            .layer(
-                CorsLayer::new()
-                    .allow_origin(Any)
-                    .allow_methods(Any)
-                    .allow_headers(Any),
+    Ok(Router::new()
+        .route("/", get(index))
+        .nest("/api/users", user_router())
+        .nest("/api/auth", auth_router())
+        .nest("/api/bakery", bakery_router())
+        .fallback(global_404)
+        .layer(middleware::from_fn(global_405))
+        .with_state(Arc::new(AppState { pg_pool: pool }))
+        .layer(tower_http::catch_panic::CatchPanicLayer::custom(|_err| {
+            // _err: Box<dyn Any + Send>
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                axum::Json(
+                    serde_json::json!( { "code": "panic", "message": "internal server error" }),
+                ),
             )
-            .layer(middleware::from_fn(auth)), // current user middleware
-    )
+                .into_response()
+        })) // 将 panic 转成 500
+        .layer(
+            CorsLayer::new()
+                .allow_origin(Any)
+                .allow_methods(Any)
+                .allow_headers(Any),
+        )
+        .layer(middleware::from_fn(auth))
+        .layer(middleware::from_fn(observability::http_observability)))
 }
 
 async fn global_405(req: Request, next: Next) -> Response {

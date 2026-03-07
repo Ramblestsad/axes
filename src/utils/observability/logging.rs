@@ -1,5 +1,3 @@
-use std::env;
-
 use serde_json::{Map, Number, Value, json};
 use tracing::{
     Event, Level, Subscriber,
@@ -15,25 +13,26 @@ use tracing_subscriber::{
     util::SubscriberInitExt,
 };
 
-/// Initialize tracing subscriber.
-pub fn init_tracing_subscriber() {
-    let environment = current_environment();
+use super::tracing::current_trace_context;
+
+pub(super) fn init_tracing_subscriber(
+    environment: &str,
+    tracer: Option<opentelemetry_sdk::trace::Tracer>,
+) {
     let env_filter = tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
         format!("{}=debug,tower_http=debug,axum::rejection=trace", env!("CARGO_CRATE_NAME")).into()
     });
 
-    if environment == "production" {
-        init_production_tracing_subscriber(env_filter, environment);
-    } else {
+    if environment == "development" {
         init_development_tracing_subscriber(env_filter);
+    } else {
+        init_production_tracing_subscriber(env_filter, environment.to_string(), tracer);
     }
 }
 
 fn init_development_tracing_subscriber(env_filter: tracing_subscriber::EnvFilter) {
     let format = "[year]-[month padding:zero]-[day padding:zero] \
                          [hour]:[minute]:[second].[subsecond digits:4]";
-    // let offset = time::UtcOffset::current_local_offset().unwrap_or_else(|_|
-    // time::UtcOffset::UTC); in case current_local_offset() panics
     let offset = time::UtcOffset::from_hms(8, 0, 0).unwrap();
     let timer = time::format_description::parse(format).unwrap();
     let time_format = fmt::time::OffsetTime::new(offset, timer);
@@ -54,22 +53,23 @@ fn init_development_tracing_subscriber(env_filter: tracing_subscriber::EnvFilter
 fn init_production_tracing_subscriber(
     env_filter: tracing_subscriber::EnvFilter,
     environment: String,
+    tracer: Option<opentelemetry_sdk::trace::Tracer>,
 ) {
-    tracing_subscriber::registry()
-        .with(env_filter)
-        .with(
-            tracing_subscriber::fmt::layer()
-                .with_writer(std::io::stdout)
-                .event_format(OtelJsonFormatter::new(environment)),
-        )
-        .init();
-}
+    let fmt_layer = tracing_subscriber::fmt::layer()
+        .with_writer(std::io::stdout)
+        .event_format(OtelJsonFormatter::new(environment));
 
-fn current_environment() -> String {
-    std::env::var("ENVIRONMENT")
-        .unwrap_or_else(|_| "development".to_string())
-        .trim()
-        .to_ascii_lowercase()
+    match tracer {
+        Some(tracer) => tracing_subscriber::registry()
+            .with(env_filter)
+            .with(fmt_layer)
+            .with(tracing_opentelemetry::layer().with_tracer(tracer))
+            .init(),
+        None => tracing_subscriber::registry()
+            .with(env_filter)
+            .with(fmt_layer)
+            .init(),
+    }
 }
 
 struct OtelJsonFormatter {
@@ -115,6 +115,8 @@ where
         let event_timestamp = unix_time_nanos();
         let observed_timestamp = unix_time_nanos();
         let body = visitor.body.unwrap_or_else(|| metadata.name().to_string());
+        let (trace_id, span_id) =
+            current_trace_context().unwrap_or_else(|| (String::new(), String::new()));
 
         let payload = json!({
             "time_unix_nano": event_timestamp,
@@ -122,8 +124,8 @@ where
             "severity_number": severity_number,
             "severity_text": severity_text,
             "body": body,
-            "trace_id": "",
-            "span_id": "",
+            "trace_id": trace_id,
+            "span_id": span_id,
             "resource": {
                 "service.name": env!("CARGO_PKG_NAME"),
                 "service.version": env!("CARGO_PKG_VERSION"),
