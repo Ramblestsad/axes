@@ -12,7 +12,7 @@ use tracing::error;
 
 use crate::{
     error::{ApiError, AppError, AppResult},
-    routes::AppState,
+    route::AppState,
 };
 
 const HOT_KEY: &str = "demo:hot:zset";

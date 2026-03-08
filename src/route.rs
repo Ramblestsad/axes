@@ -15,7 +15,7 @@ use sqlx::postgres::{PgPool, PgPoolOptions};
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::{
-    handlers::{auth::auth, *},
+    handlers::*,
     utils::{jwt_auth::Claims, observability},
     *,
 };
@@ -90,7 +90,7 @@ pub async fn route() -> Result<Router, anyhow::Error> {
                 .allow_methods(Any)
                 .allow_headers(Any),
         )
-        .layer(middleware::from_fn(auth))
+        .layer(middleware::from_fn(auth::auth))
         .layer(middleware::from_fn(observability::http_observability)))
 }
 

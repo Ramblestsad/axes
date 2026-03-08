@@ -4,7 +4,7 @@ pub mod config;
 pub mod error;
 pub mod grpc;
 pub mod handlers;
-pub mod routes;
+pub mod route;
 pub mod utils;
 
 #[cfg(test)]

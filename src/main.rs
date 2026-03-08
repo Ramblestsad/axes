@@ -1,5 +1,5 @@
 use axes::{
-    routes::route,
+    route::route,
     utils::{gracefully_shutdown::shutdown_token, observability},
 };
 

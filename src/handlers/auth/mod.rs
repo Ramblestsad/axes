@@ -12,7 +12,7 @@ use time::OffsetDateTime;
 
 use crate::{
     error::{AppResult, AuthError},
-    routes::AppState,
+    route::AppState,
     utils::jwt_auth,
 };
 

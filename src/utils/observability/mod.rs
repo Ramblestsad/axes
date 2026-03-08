@@ -6,13 +6,12 @@ mod metrics;
 mod otlp;
 mod tracing;
 
+pub use grpc::grpc_observability_layer;
+pub use http::http_observability;
 use opentelemetry::{global, trace::TracerProvider as _};
 use opentelemetry_sdk::{
     metrics::SdkMeterProvider, propagation::TraceContextPropagator, trace::SdkTracerProvider,
 };
-
-pub use grpc::grpc_observability_layer;
-pub use http::http_observability;
 
 pub struct ObservabilityGuard {
     tracer_provider: SdkTracerProvider,

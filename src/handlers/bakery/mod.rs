@@ -8,7 +8,7 @@ use axum_macros::debug_handler;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
-use crate::{error::AppResult, routes::DbConn};
+use crate::{error::AppResult, route::DbConn};
 
 #[derive(Deserialize)]
 pub struct Params {
