@@ -3,6 +3,7 @@ use axum::{http::StatusCode, response::IntoResponse};
 pub mod auth;
 pub mod bakery;
 pub mod chat;
+pub mod orders;
 pub mod stat;
 pub mod users;
 

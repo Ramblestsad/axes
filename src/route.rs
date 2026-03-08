@@ -15,6 +15,7 @@ use sqlx::postgres::{PgPool, PgPoolOptions};
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::{
+    handlers::orders as order_handlers,
     handlers::*,
     utils::{jwt_auth::Claims, observability},
     *,
@@ -71,6 +72,7 @@ pub async fn route() -> Result<Router, anyhow::Error> {
         .nest("/api/users", user_router())
         .nest("/api/auth", auth_router())
         .nest("/api/bakery", bakery_router())
+        .nest("/api/orders", orders_router())
         .nest("/api/hot", hot_router())
         .nest("/api/chat", chat_router())
         .fallback(global_404)
@@ -149,6 +151,12 @@ fn hot_router() -> Router<Arc<AppState>> {
         .route("/{item_id}/incr", post(stat::hot::incr_hot_score))
         .route("/top", get(stat::hot::hot_top))
         .route("/stock/{item_id}/claim", post(stat::hot::claim_stock))
+}
+
+fn orders_router() -> Router<Arc<AppState>> {
+    Router::new()
+        .route("/", post(order_handlers::create))
+        .route("/{id}", get(order_handlers::detail))
 }
 
 fn chat_router() -> Router<Arc<AppState>> {

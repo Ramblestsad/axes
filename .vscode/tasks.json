@@ -4,7 +4,7 @@
     {
       "type": "cargo",
       "command": "r",
-      "args": [],
+      "args": ["--bin", "axes"],
       "problemMatcher": ["$rustc"],
       "label": "cargo run axes",
       "presentation": {
@@ -27,7 +27,7 @@
     {
       "type": "cargo",
       "command": "b",
-      "args": [],
+      "args": ["--bin", "axes"],
       "problemMatcher": ["$rustc"],
       "group": "build",
       "label": "cargo build axes",

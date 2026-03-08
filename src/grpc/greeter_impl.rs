@@ -17,5 +17,5 @@ impl Greeter for GreeterSvc {
 }
 
 pub fn router() -> GreeterServer<GreeterSvc> {
-    GreeterServer::new(GreeterSvc::default())
+    GreeterServer::new(GreeterSvc)
 }

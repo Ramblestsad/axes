@@ -20,7 +20,7 @@ tracing-subscriber = { version = "0.3", features = [
 tracing-opentelemetry = "0.32"
 anyhow = "1"
 thiserror = "2"
-time = { version = "0.3", features = ["macros", "local-offset"] }
+time = { version = "0.3", features = ["macros", "local-offset", "formatting"] }
 itertools = "0.14"
 opentelemetry = { version = "0.31", features = ["trace", "metrics"] }
 opentelemetry_sdk = { version = "0.31", features = ["trace", "metrics"] }
@@ -46,7 +46,7 @@ tonic = "0.14"
 tonic-prost = "0.14"
 prost = "0.14"
 
-sqlx = { version = "0.8", features = [ "runtime-tokio-rustls", "any", "postgres" ] }
+sqlx = { version = "0.8", features = [ "runtime-tokio-rustls", "any", "postgres", "uuid", "time" ] }
 jsonwebtoken = { version = "10", features = ["rust_crypto"]}
 tower = { version = "0.5", features = ["util"] }
 tower-http = { version = "0.6", features = ["trace", "cors", "fs", "catch-panic"] }
@@ -54,6 +54,8 @@ serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1" }
 config = "0.15"
 redis = { version = "1", features = ["tokio-comp"] }
+rdkafka = { version = "0.38", features = ["tokio"] }
+uuid = { version = "1", features = ["v4", "serde"] }
 
 [dev-dependencies]
 pretty_assertions = "1"

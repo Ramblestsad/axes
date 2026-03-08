@@ -36,7 +36,7 @@ pub async fn list(
         .fetch_one(&mut *conn)
         .await?;
 
-    let pages = if total == 0 { 1 } else { (total as u64 + size - 1) / size };
+    let pages = if total == 0 { 1 } else { (total as u64).div_ceil(size) };
 
     let bakeries = sqlx::query_as!(
         Bakery,
