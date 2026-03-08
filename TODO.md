@@ -2,7 +2,7 @@
 - [x] 引入otel export 到 collector: logs, metric, trace_id
 - [x] redis 示例接口。
 - [x] axum ws 示例接口。
-- [ ] 引入rabbitmq，新建示例接口，workers项目作为消费者。
+- [ ] 引入kafka，新建orders示例接口，workers项目作为消费者。
 - [ ] 数据库主从读写分离示例。
 - [ ] 数据库集群应用对接示例(数据路由/事务约束)。
 - [ ] 基于Pingora的api gateway示例。
