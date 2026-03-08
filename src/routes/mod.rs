@@ -1,5 +1,6 @@
 use std::{sync::Arc, time::Duration};
 
+use ::redis::Client;
 use axum::{
     Json, Router,
     extract::{FromRef, FromRequestParts, Request},
@@ -21,6 +22,7 @@ use crate::{
 
 pub struct AppState {
     pub pg_pool: PgPool,
+    pub redis_client: Client,
 }
 
 pub struct DbConn(pub sqlx::pool::PoolConnection<sqlx::Postgres>);
@@ -52,6 +54,7 @@ pub async fn route() -> Result<Router, anyhow::Error> {
 
     // pg init
     let pg_url = cfg.pg.url.expect("Postgres URL not found, check settings.");
+    let redis_url = cfg.redis.url.expect("Redis URL not found, check settings.");
     // set up connection pool
     let pool = PgPoolOptions::new()
         .max_connections(5)
@@ -59,6 +62,7 @@ pub async fn route() -> Result<Router, anyhow::Error> {
         .connect(&pg_url)
         .await
         .expect("can't connect to database");
+    let redis_client = Client::open(redis_url).expect("can't create redis client");
 
     // app init
     Ok(Router::new()
@@ -66,9 +70,10 @@ pub async fn route() -> Result<Router, anyhow::Error> {
         .nest("/api/users", user_router())
         .nest("/api/auth", auth_router())
         .nest("/api/bakery", bakery_router())
+        .nest("/api/hot", hot_router())
         .fallback(global_404)
         .layer(middleware::from_fn(global_405))
-        .with_state(Arc::new(AppState { pg_pool: pool }))
+        .with_state(Arc::new(AppState { pg_pool: pool, redis_client }))
         .layer(tower_http::catch_panic::CatchPanicLayer::custom(|_err| {
             // _err: Box<dyn Any + Send>
             (
@@ -131,4 +136,11 @@ fn bakery_router() -> Router<Arc<AppState>> {
         .layer(middleware::from_extractor::<Claims>()) // jwt auth middleware
         .route("/", get(bakery::list))
         .route("/{id}", get(bakery::detail))
+}
+
+fn hot_router() -> Router<Arc<AppState>> {
+    Router::new()
+        .route("/{item_id}/incr", post(stat::hot::incr_hot_score))
+        .route("/top", get(stat::hot::hot_top))
+        .route("/stock/{item_id}/claim", post(stat::hot::claim_stock))
 }

@@ -2,6 +2,7 @@ use axum::{http::StatusCode, response::IntoResponse};
 
 pub mod auth;
 pub mod bakery;
+pub mod stat;
 pub mod users;
 
 pub async fn index() -> impl IntoResponse {

@@ -39,6 +39,12 @@ impl From<jsonwebtoken::errors::Error> for ApiError {
     }
 }
 
+impl From<redis::RedisError> for ApiError {
+    fn from(error: redis::RedisError) -> Self {
+        Self(anyhow::Error::new(error))
+    }
+}
+
 impl IntoResponse for ApiError {
     fn into_response(self) -> Response {
         let err = self.0;

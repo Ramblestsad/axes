@@ -7,10 +7,17 @@ pub struct PostgreConfig {
     pub url: Option<String>,
 }
 
+/// Redis Config
+#[derive(Deserialize, Clone, Debug, Default)]
+pub struct RedisConfig {
+    pub url: Option<String>,
+}
+
 /// App Config
 #[derive(Deserialize, Clone)]
 pub struct AppConfig {
     pub pg: PostgreConfig,
+    pub redis: RedisConfig,
 }
 
 impl AppConfig {
