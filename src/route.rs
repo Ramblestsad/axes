@@ -23,6 +23,7 @@ use crate::{
 pub struct AppState {
     pub pg_pool: PgPool,
     pub redis_client: Client,
+    pub chat_service: Arc<chat::ChatState>,
 }
 
 pub struct DbConn(pub sqlx::pool::PoolConnection<sqlx::Postgres>);
@@ -71,9 +72,14 @@ pub async fn route() -> Result<Router, anyhow::Error> {
         .nest("/api/auth", auth_router())
         .nest("/api/bakery", bakery_router())
         .nest("/api/hot", hot_router())
+        .nest("/api/chat", chat_router())
         .fallback(global_404)
         .layer(middleware::from_fn(global_405))
-        .with_state(Arc::new(AppState { pg_pool: pool, redis_client }))
+        .with_state(Arc::new(AppState {
+            pg_pool: pool,
+            redis_client,
+            chat_service: Arc::new(chat::ChatState::default()),
+        }))
         .layer(tower_http::catch_panic::CatchPanicLayer::custom(|_err| {
             // _err: Box<dyn Any + Send>
             (
@@ -143,4 +149,8 @@ fn hot_router() -> Router<Arc<AppState>> {
         .route("/{item_id}/incr", post(stat::hot::incr_hot_score))
         .route("/top", get(stat::hot::hot_top))
         .route("/stock/{item_id}/claim", post(stat::hot::claim_stock))
+}
+
+fn chat_router() -> Router<Arc<AppState>> {
+    Router::new().route("/connect", get(chat::connect))
 }

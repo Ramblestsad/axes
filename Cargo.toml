@@ -35,9 +35,10 @@ opentelemetry-http = "0.31"
 http-body = "1"
 
 # axum libs
-axum = { version = "0.8" }
+axum = { version = "0.8", features = ["ws"] }
 axum-macros = "0.5"
 axum-extra = { version = "0.12", features = ["typed-header"] }
+futures-util = "0.3"
 headers = "0.4"
 
 # tonic / grpc libs
