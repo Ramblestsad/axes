@@ -8,7 +8,10 @@ use axum_macros::debug_handler;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
-use crate::{error::AppResult, route::DbConn};
+use crate::{
+    db::{ReadDbConn, WriteDbConn},
+    error::AppResult,
+};
 
 #[derive(Deserialize)]
 pub struct Params {
@@ -24,7 +27,7 @@ pub struct Bakery {
 }
 
 pub async fn list(
-    DbConn(mut conn): DbConn,
+    ReadDbConn(mut conn): ReadDbConn,
     Query(params): Query<Params>,
     OriginalUri(uri): OriginalUri,
 ) -> AppResult<impl IntoResponse> {
@@ -73,7 +76,7 @@ pub async fn list(
 }
 
 pub async fn detail(
-    DbConn(mut conn): DbConn,
+    ReadDbConn(mut conn): ReadDbConn,
     Path(bid): Path<i32>,
 ) -> AppResult<impl IntoResponse> {
     let bakery =
@@ -91,7 +94,7 @@ pub async fn detail(
 }
 
 pub async fn create(
-    DbConn(mut conn): DbConn,
+    WriteDbConn(mut conn): WriteDbConn,
     Json(payload): Json<CreateDto>,
 ) -> AppResult<impl IntoResponse> {
     sqlx::query!(
@@ -112,7 +115,7 @@ pub struct CreateDto {
 }
 
 pub async fn update(
-    DbConn(mut conn): DbConn,
+    WriteDbConn(mut conn): WriteDbConn,
     Json(payload): Json<UpdateDto>,
 ) -> AppResult<impl IntoResponse> {
     sqlx::query!(
@@ -135,7 +138,7 @@ pub struct UpdateDto {
 }
 
 pub async fn delete(
-    DbConn(mut conn): DbConn,
+    WriteDbConn(mut conn): WriteDbConn,
     Json(payload): Json<DeleteDto>,
 ) -> AppResult<impl IntoResponse> {
     sqlx::query!(r#"DELETE FROM bakery WHERE id = $1"#, payload.id)

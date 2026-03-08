@@ -1,20 +1,21 @@
-use std::{sync::Arc, time::Duration};
+use std::sync::Arc;
 
 use ::redis::Client;
 use axum::{
     Json, Router,
-    extract::{FromRef, FromRequestParts, Request},
-    http::{StatusCode, request::Parts},
+    extract::Request,
+    http::StatusCode,
     middleware,
     middleware::Next,
     response::{IntoResponse, Response},
     routing::*,
 };
 use serde_json::json;
-use sqlx::postgres::{PgPool, PgPoolOptions};
+use sqlx::postgres::PgPool;
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::{
+    db::connect_pool,
     handlers::orders as order_handlers,
     handlers::*,
     utils::{jwt_auth::Claims, observability},
@@ -22,31 +23,10 @@ use crate::{
 };
 
 pub struct AppState {
-    pub pg_pool: PgPool,
+    pub write_pool: PgPool,
+    pub read_pool: PgPool,
     pub redis_client: Client,
     pub chat_service: Arc<chat::ChatState>,
-}
-
-pub struct DbConn(pub sqlx::pool::PoolConnection<sqlx::Postgres>);
-
-impl<S> FromRequestParts<S> for DbConn
-where
-    Arc<AppState>: FromRef<S>,
-    S: Send + Sync,
-{
-    type Rejection = (StatusCode, String);
-
-    async fn from_request_parts(_parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
-        let app_state = Arc::<AppState>::from_ref(state);
-        let pool = &app_state.pg_pool;
-
-        let conn = pool
-            .acquire()
-            .await
-            .map_err(|err| (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()))?;
-
-        Ok(Self(conn))
-    }
 }
 
 pub async fn route() -> Result<Router, anyhow::Error> {
@@ -55,15 +35,11 @@ pub async fn route() -> Result<Router, anyhow::Error> {
         .expect("Configuration initialization failed, check pg .env settings.");
 
     // pg init
-    let pg_url = cfg.pg.url.expect("Postgres URL not found, check settings.");
+    let (write_pg_url, read_pg_url) = cfg.pg.required_urls()?;
     let redis_url = cfg.redis.url.expect("Redis URL not found, check settings.");
     // set up connection pool
-    let pool = PgPoolOptions::new()
-        .max_connections(5)
-        .acquire_timeout(Duration::from_secs(3))
-        .connect(&pg_url)
-        .await
-        .expect("can't connect to database");
+    let write_pool = connect_pool(write_pg_url, "write").await?;
+    let read_pool = connect_pool(read_pg_url, "read").await?;
     let redis_client = Client::open(redis_url).expect("can't create redis client");
 
     // app init
@@ -78,7 +54,8 @@ pub async fn route() -> Result<Router, anyhow::Error> {
         .fallback(global_404)
         .layer(middleware::from_fn(global_405))
         .with_state(Arc::new(AppState {
-            pg_pool: pool,
+            write_pool,
+            read_pool,
             redis_client,
             chat_service: Arc::new(chat::ChatState::default()),
         }))

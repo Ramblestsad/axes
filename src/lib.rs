@@ -1,6 +1,7 @@
 //! scratch-axum lib
 
 pub mod config;
+pub mod db;
 pub mod error;
 pub mod grpc;
 pub mod handlers;

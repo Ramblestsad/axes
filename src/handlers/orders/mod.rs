@@ -54,7 +54,8 @@ pub async fn create(
         }
     }
 
-    let order = insert_order_with_outbox(&state.pg_pool, &payload).await?;
+    tracing::info!(db_role = "write", "handling order write request");
+    let order = insert_order_with_outbox(&state.write_pool, &payload).await?;
     Ok((StatusCode::CREATED, Json(to_order_response(order)?)))
 }
 
@@ -62,7 +63,8 @@ pub async fn detail(
     State(state): State<Arc<AppState>>,
     Path(order_id): Path<Uuid>,
 ) -> AppResult<impl IntoResponse> {
-    let order = get_order_by_id(&state.pg_pool, order_id).await?;
+    tracing::info!(db_role = "read", "handling order read request");
+    let order = get_order_by_id(&state.read_pool, order_id).await?;
     let order =
         order.ok_or_else(|| AppError::new("Order not found").with_status(StatusCode::NOT_FOUND))?;
 

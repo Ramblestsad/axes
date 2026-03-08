@@ -1,5 +1,6 @@
 [pg]
-url = "postgresql://username:password@host.docker.internal:5432/database_name"
+write_url = "postgresql://username:password@host.docker.internal:5432/database_name"
+read_url = "postgresql://username:password@host.docker.internal:5433/database_name"
 
 [redis]
 url = "redis://redis:6379/"

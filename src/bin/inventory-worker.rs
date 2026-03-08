@@ -23,10 +23,11 @@ use tracing::{info, warn};
 async fn main() -> Result<(), anyhow::Error> {
     let observability = observability::init_observability();
     let config = AppConfig::new().context("failed to load app config")?;
+    // Worker keeps using the primary because outbox/inbox processing needs strong consistency.
     let pg_url = config
         .pg
-        .url
-        .context("Postgres URL not found, check settings.")?;
+        .required_write_url()
+        .context("Postgres write URL not found, check settings.")?;
     let redis_url = config
         .redis
         .url
@@ -34,7 +35,7 @@ async fn main() -> Result<(), anyhow::Error> {
     let pool = PgPoolOptions::new()
         .max_connections(5)
         .acquire_timeout(Duration::from_secs(3))
-        .connect(&pg_url)
+        .connect(pg_url)
         .await
         .context("failed to connect postgres for inventory worker")?;
     let pool = Arc::new(pool);
