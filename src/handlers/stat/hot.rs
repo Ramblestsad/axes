@@ -11,7 +11,7 @@ use serde_json::json;
 use tracing::error;
 
 use crate::{
-    error::{ApiError, AppError, AppResult},
+    error::{AppError, AppResult},
     route::AppState,
 };
 
@@ -139,7 +139,7 @@ pub async fn hot_top(
         .query_async(&mut conn)
         .await
         .map_err(redis_command_error)?;
-    let items = build_hot_top_items(entries).map_err(ApiError::from)?;
+    let items = build_hot_top_items(entries)?;
 
     Ok((
         StatusCode::OK,
@@ -246,9 +246,7 @@ pub(crate) fn build_hot_top_items(
         .collect()
 }
 
-fn redis_command_error(error: redis::RedisError) -> ApiError {
+fn redis_command_error(error: redis::RedisError) -> AppError {
     error!(error = %error, "redis command failed");
-    ApiError::from(
-        AppError::new("Redis command failed").with_status(StatusCode::INTERNAL_SERVER_ERROR),
-    )
+    AppError::new("Redis command failed").with_status(StatusCode::INTERNAL_SERVER_ERROR)
 }

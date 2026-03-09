@@ -8,7 +8,7 @@ use axum_extra::{
 use jsonwebtoken::{DecodingKey, EncodingKey, Validation, decode};
 use serde::{Deserialize, Serialize};
 
-use crate::error::{ApiError, AuthError};
+use crate::error::{AppError, AuthError};
 
 // secret key for JWT token
 pub static KEYS: OnceLock<Keys> = OnceLock::new();
@@ -57,7 +57,7 @@ impl<S> FromRequestParts<S> for Claims
 where
     S: Send + Sync,
 {
-    type Rejection = ApiError;
+    type Rejection = AppError;
 
     async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
         // Extract the token from the authorization header

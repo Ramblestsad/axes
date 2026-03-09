@@ -20,7 +20,7 @@ use tokio::sync::{
 use tracing::{debug, warn};
 
 use crate::{
-    error::{ApiError, AppError},
+    error::{AppError, AppResult},
     route::AppState,
 };
 
@@ -607,10 +607,10 @@ pub async fn connect(
     chat_socket: WebSocketUpgrade,
     Query(query): Query<ChatConnectQuery>,
     State(state): State<Arc<AppState>>,
-) -> Result<impl IntoResponse, ApiError> {
+) -> AppResult<impl IntoResponse> {
     let user_id = query.user_id.trim().to_string();
     if user_id.is_empty() {
-        return Err(ApiError::from(AppError::new("user_id is required")));
+        return Err(AppError::new("user_id is required"));
     }
     let user_name = query
         .user_name
@@ -619,7 +619,7 @@ pub async fn connect(
         .trim()
         .to_string();
     if user_name.is_empty() {
-        return Err(ApiError::from(AppError::new("user_name is invalid")));
+        return Err(AppError::new("user_name is invalid"));
     }
 
     Ok(chat_socket.on_upgrade(move |socket| async move {

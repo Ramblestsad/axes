@@ -72,14 +72,8 @@ pub async fn detail(
 }
 
 fn to_order_response(order: OrderRecord) -> AppResult<OrderResponse> {
-    let created_at_utc = order
-        .created_at_utc
-        .format(&Rfc3339)
-        .map_err(anyhow::Error::from)?;
-    let updated_at_utc = order
-        .updated_at_utc
-        .format(&Rfc3339)
-        .map_err(anyhow::Error::from)?;
+    let created_at_utc = order.created_at_utc.format(&Rfc3339)?;
+    let updated_at_utc = order.updated_at_utc.format(&Rfc3339)?;
 
     Ok(OrderResponse {
         id: order.id,

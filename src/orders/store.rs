@@ -402,7 +402,7 @@ fn map_order_row(row: sqlx::postgres::PgRow) -> anyhow::Result<OrderRecord> {
         simulate_inventory_failure: row
             .try_get("simulate_inventory_failure")
             .context("failed to decode order simulate flag")?,
-        status: OrderStatus::try_from(status_code).map_err(anyhow::Error::from)?,
+        status: OrderStatus::try_from(status_code)?,
         failure_reason: row
             .try_get("failure_reason")
             .context("failed to decode order failure reason")?,
