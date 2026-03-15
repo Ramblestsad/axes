@@ -19,11 +19,26 @@ pub struct Params {
     pub size: Option<u64>,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct CursorParams {
+    pub after: Option<i32>,
+    pub size: Option<u64>,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Bakery {
     pub id: i32,
     pub name: String,
     pub profit_margin: f64,
+}
+
+#[derive(Debug, Serialize)]
+pub struct CursorPage {
+    pub data: Vec<Bakery>,
+    pub after: Option<i32>,
+    pub size: u64,
+    pub next_cursor: Option<i32>,
+    pub has_more: bool,
 }
 
 pub async fn list(
@@ -73,6 +88,30 @@ pub async fn list(
             "last_page": last_page
         })),
     ))
+}
+
+pub async fn list_by_cursor(
+    ReadDbConn(mut conn): ReadDbConn,
+    Query(params): Query<CursorParams>,
+) -> AppResult<impl IntoResponse> {
+    let size = sanitized_cursor_page_size(params.size);
+    let limit = size.saturating_add(1).min(i64::MAX as u64) as i64;
+    let bakeries = sqlx::query_as!(
+        Bakery,
+        r#"
+        SELECT id, name, profit_margin
+        FROM bakery
+        WHERE ($1::INT4 IS NULL OR id > $1)
+        ORDER BY id
+        LIMIT $2
+        "#,
+        params.after,
+        limit
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
+    Ok((StatusCode::OK, Json(build_cursor_page(bakeries, params.after, size))))
 }
 
 pub async fn detail(
@@ -151,4 +190,28 @@ pub async fn delete(
 #[derive(Deserialize)]
 pub struct DeleteDto {
     id: i32,
+}
+
+pub(crate) fn sanitized_cursor_page_size(size: Option<u64>) -> u64 {
+    match size {
+        Some(0) | None => 10,
+        Some(size) => size,
+    }
+}
+
+pub(crate) fn build_cursor_page(
+    mut bakeries: Vec<Bakery>,
+    after: Option<i32>,
+    size: u64,
+) -> CursorPage {
+    // Fetch one extra row so the handler can report whether another page exists.
+    let page_size = usize::try_from(size).unwrap_or(usize::MAX);
+    let has_more = bakeries.len() > page_size;
+    if has_more {
+        bakeries.truncate(page_size);
+    }
+
+    let next_cursor = if has_more { bakeries.last().map(|bakery| bakery.id) } else { None };
+
+    CursorPage { data: bakeries, after, size, next_cursor, has_more }
 }
