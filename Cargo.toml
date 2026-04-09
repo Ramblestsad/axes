@@ -54,7 +54,7 @@ serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1" }
 config = "0.15"
 redis = { version = "1", features = ["tokio-comp"] }
-rdkafka = { version = "0.38", features = ["tokio"] }
+rdkafka = { version = "0.39", features = ["tokio"] }
 uuid = { version = "1", features = ["v4", "serde"] }
 
 [dev-dependencies]
