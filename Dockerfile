@@ -36,14 +36,15 @@ RUN adduser \
 
 COPY --from=build /bin/axes /bin/axes
 RUN chown appuser /bin/axes
-COPY --from=build /app/settings /settings
-RUN chown -R appuser /settings
+RUN mkdir /settings && chown appuser /settings
 
 USER appuser
 
 ENV ENVIRONMENT=production
 ENV RUST_LOG="axes=debug,info"
+ENV AXES_HTTP_ADDR="0.0.0.0:7878"
+ENV AXES_GRPC_ADDR="0.0.0.0:50051"
 
-EXPOSE 7878
+EXPOSE 7878 50051
 
 CMD ["/bin/axes"]

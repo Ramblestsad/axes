@@ -14,5 +14,7 @@ migration/
 # Settings
 settings/*.toml
 !settings/*.example.toml
+secret.yaml
+secret.local.yaml
 
 .env

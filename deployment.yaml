@@ -19,8 +19,23 @@ spec:
         - name: axes # 容器的名字，必须在 Pod 内唯一
           image: axes:latest # 本地 build 的镜像名
           imagePullPolicy: IfNotPresent
+          env:
+            - name: ENVIRONMENT
+              value: "production"
+            - name: AXES_HTTP_ADDR
+              value: "0.0.0.0:7878"
+            - name: AXES_GRPC_ADDR
+              value: "0.0.0.0:50051"
           ports:
-            - containerPort: 7878 # 容器内部暴露端口
+            - name: http
+              containerPort: 7878 # 容器内部暴露 HTTP 端口
+            - name: grpc
+              containerPort: 50051 # 容器内部暴露 gRPC 端口
+          volumeMounts:
+            - name: axes-production-config
+              mountPath: /settings/production.toml
+              subPath: production.toml
+              readOnly: true
           resources:
             requests:
               cpu: '100m' # 最少要给 0.1 CPU
@@ -28,3 +43,7 @@ spec:
             # limits:
             #   cpu:    "500m"              # 最多只能用到 0.5 CPU
             #   memory: "1G"                # 最多只能用到 1GB 内存
+      volumes:
+        - name: axes-production-config
+          secret:
+            secretName: axes-production-config

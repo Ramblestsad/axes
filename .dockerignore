@@ -26,6 +26,10 @@
 **/npm-debug.log
 **/secrets.dev.yaml
 **/values.dev.yaml
+settings/*.toml
+!settings/*.example.toml
+secret.yaml
+secret.local.yaml
 /bin
 /target
 LICENSE
