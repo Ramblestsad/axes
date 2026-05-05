@@ -119,7 +119,7 @@ fn bakery_router() -> Router<Arc<AppState>> {
         .route("/update", post(bakery::update))
         .route("/delete", post(bakery::delete))
         .layer(middleware::from_extractor::<Claims>()) // jwt auth middleware
-        .route("/", get(bakery::list))
+        .route("/", get(bakery::list_by_cursor))
         .route("/{id}", get(bakery::detail))
 }
 
