@@ -6,9 +6,9 @@ use axum::{
     middleware::Next,
     response::Response,
 };
+use chrono::{Duration, Utc};
 use jsonwebtoken::{Header, encode};
 use serde::Serialize;
-use time::OffsetDateTime;
 
 use crate::{
     error::{AppResult, AuthError},
@@ -57,11 +57,11 @@ pub async fn protected(
 }
 
 fn get_timestamp_x_days_from_now(x: u64) -> u64 {
-    let now = OffsetDateTime::now_utc();
+    let now = Utc::now();
     println!("Now: {:?}", &now);
-    let x_days_after = now + time::Duration::days(x as i64);
+    let x_days_after = now + Duration::days(x as i64);
 
-    x_days_after.unix_timestamp() as u64
+    x_days_after.timestamp() as u64
 }
 
 // current user middleware

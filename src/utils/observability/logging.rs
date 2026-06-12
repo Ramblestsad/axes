@@ -1,3 +1,4 @@
+use chrono::Utc;
 use serde_json::{Map, Number, Value, json};
 use tracing::{
     Event, Level, Subscriber,
@@ -31,11 +32,7 @@ fn init_development_tracing_subscriber(
     env_filter: tracing_subscriber::EnvFilter,
     tracer: opentelemetry_sdk::trace::Tracer,
 ) {
-    let format = "[year]-[month padding:zero]-[day padding:zero] \
-                         [hour]:[minute]:[second].[subsecond digits:4]";
-    let offset = time::UtcOffset::current_local_offset().unwrap_or(time::UtcOffset::UTC);
-    let timer = time::format_description::parse(format).unwrap();
-    let time_format = fmt::time::OffsetTime::new(offset, timer);
+    let time_format = fmt::time::ChronoLocal::new("%Y-%m-%d %H:%M:%S%.4f".to_string());
 
     tracing_subscriber::registry()
         .with(env_filter)
@@ -220,8 +217,8 @@ fn severity(level: &Level) -> (u8, &'static str) {
 }
 
 fn unix_time_nanos() -> String {
-    let now = time::OffsetDateTime::now_utc();
-    let seconds = i128::from(now.unix_timestamp());
-    let nanos = i128::from(now.nanosecond());
+    let now = Utc::now();
+    let seconds = i128::from(now.timestamp());
+    let nanos = i128::from(now.timestamp_subsec_nanos());
     (seconds * 1_000_000_000 + nanos).to_string()
 }

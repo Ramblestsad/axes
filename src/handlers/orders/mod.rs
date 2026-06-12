@@ -8,7 +8,6 @@ use axum::{
 };
 use redis::AsyncCommands;
 use serde::Serialize;
-use time::format_description::well_known::Rfc3339;
 use tracing::warn;
 use uuid::Uuid;
 
@@ -72,8 +71,8 @@ pub async fn detail(
 }
 
 fn to_order_response(order: OrderRecord) -> AppResult<OrderResponse> {
-    let created_at_utc = order.created_at_utc.format(&Rfc3339)?;
-    let updated_at_utc = order.updated_at_utc.format(&Rfc3339)?;
+    let created_at_utc = order.created_at_utc.to_rfc3339();
+    let updated_at_utc = order.updated_at_utc.to_rfc3339();
 
     Ok(OrderResponse {
         id: order.id,

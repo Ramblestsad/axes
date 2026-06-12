@@ -10,9 +10,9 @@ use axum::{
     },
     response::IntoResponse,
 };
+use chrono::Utc;
 use futures_util::{sink::SinkExt, stream::StreamExt};
 use serde::{Deserialize, Serialize};
-use time::OffsetDateTime;
 use tokio::sync::{
     Mutex, mpsc,
     mpsc::{UnboundedReceiver, UnboundedSender},
@@ -314,7 +314,7 @@ impl ChatHub {
             sender_id: connection.user.user_id.clone(),
             sender_name: connection.user.user_name.clone(),
             content,
-            sent_at: OffsetDateTime::now_utc().unix_timestamp(),
+            sent_at: Utc::now().timestamp(),
             version: room.version,
         };
         room.recent_messages.push(message.clone());

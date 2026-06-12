@@ -107,13 +107,6 @@ impl From<redis::RedisError> for AppError {
     }
 }
 
-impl From<time::error::Format> for AppError {
-    fn from(error: time::error::Format) -> Self {
-        error!(error = %error, "time format error");
-        AppError::internal("Internal server error")
-    }
-}
-
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         let status = self.status;

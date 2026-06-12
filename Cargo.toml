@@ -15,23 +15,23 @@ tokio-util = "0.7"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = [
     "env-filter",
-    "local-time",
+    "chrono",
 ] }
-tracing-opentelemetry = "0.32"
+tracing-opentelemetry = "0.33"
 anyhow = "1"
 thiserror = "2"
-time = { version = "0.3", features = ["macros", "local-offset", "formatting"] }
+chrono = "0.4"
 itertools = "0.14"
-opentelemetry = { version = "0.31", features = ["trace", "metrics"] }
-opentelemetry_sdk = { version = "0.31", features = ["trace", "metrics"] }
-opentelemetry-otlp = { version = "0.31", default-features = false, features = [
+opentelemetry = { version = "0.32", features = ["trace", "metrics"] }
+opentelemetry_sdk = { version = "0.32", features = ["trace", "metrics"] }
+opentelemetry-otlp = { version = "0.32", default-features = false, features = [
     "trace",
     "metrics",
     "grpc-tonic",
     "http-proto",
     "reqwest-client",
 ] }
-opentelemetry-http = "0.31"
+opentelemetry-http = "0.32"
 http-body = "1"
 
 # axum libs
@@ -46,7 +46,7 @@ tonic = "0.14"
 tonic-prost = "0.14"
 prost = "0.14"
 
-sqlx = { version = "0.8", features = [ "runtime-tokio-rustls", "any", "postgres", "uuid", "time" ] }
+sqlx = { version = "0.9", features = [ "runtime-tokio", "tls-rustls", "any", "postgres", "uuid", "chrono" ] }
 jsonwebtoken = { version = "10", features = ["rust_crypto"]}
 tower = { version = "0.5", features = ["util"] }
 tower-http = { version = "0.6", features = ["trace", "cors", "fs", "catch-panic"] }

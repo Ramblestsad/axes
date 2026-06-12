@@ -1,6 +1,6 @@
 use anyhow::Context;
-use sqlx::{PgPool, Postgres, Row, Transaction};
-use time::OffsetDateTime;
+use chrono::{DateTime, Utc};
+use sqlx::{AssertSqlSafe, PgPool, Postgres, Row, Transaction};
 use uuid::Uuid;
 
 use super::{
@@ -17,8 +17,8 @@ pub struct OrderRecord {
     pub simulate_inventory_failure: bool,
     pub status: OrderStatus,
     pub failure_reason: Option<String>,
-    pub created_at_utc: OffsetDateTime,
-    pub updated_at_utc: OffsetDateTime,
+    pub created_at_utc: DateTime<Utc>,
+    pub updated_at_utc: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone)]
@@ -34,7 +34,7 @@ pub async fn insert_order_with_outbox(
 ) -> anyhow::Result<OrderRecord> {
     let mut tx = pool.begin().await?;
     let now = utc_now();
-    let occurred_on_utc = now.format(&time::format_description::well_known::Rfc3339)?;
+    let occurred_on_utc = now.to_rfc3339();
     let order_id = Uuid::new_v4();
     let event = OrderCreatedEvent {
         message_id: Uuid::new_v4(),
@@ -78,7 +78,7 @@ pub async fn insert_order_with_outbox(
     .bind(ORDER_CREATED_EVENT_TYPE)
     .bind(event_payload)
     .bind(now)
-    .bind(Option::<OffsetDateTime>::None)
+    .bind(Option::<DateTime<Utc>>::None)
     .bind(0_i32)
     .bind(Option::<String>::None)
     .execute(&mut *tx)
@@ -234,7 +234,7 @@ pub async fn handle_order_created_message(
     };
     let outcome = determine_inventory_result(simulate_inventory_failure, updated_rows);
     let now = utc_now();
-    let occurred_on_utc = now.format(&time::format_description::well_known::Rfc3339)?;
+    let occurred_on_utc = now.to_rfc3339();
     let outbox_event = InventoryResultEvent {
         message_id: Uuid::new_v4(),
         correlation_id: event.correlation_id,
@@ -260,7 +260,7 @@ pub async fn handle_order_created_message(
     .bind(INVENTORY_RESULT_EVENT_TYPE)
     .bind(payload)
     .bind(now)
-    .bind(Option::<OffsetDateTime>::None)
+    .bind(Option::<DateTime<Utc>>::None)
     .bind(0_i32)
     .bind(Option::<String>::None)
     .execute(&mut *tx)
@@ -303,7 +303,7 @@ async fn insert_inbox_once(
         ON CONFLICT ("MessageId", "Consumer") DO NOTHING
         "#
     );
-    let result = sqlx::query(&sql)
+    let result = sqlx::query(AssertSqlSafe(sql))
         .bind(message_id)
         .bind(consumer)
         .bind(utc_now())
@@ -342,7 +342,10 @@ async fn list_unpublished_outbox(
         LIMIT $1
         "#
     );
-    let rows = sqlx::query(&sql).bind(limit).fetch_all(pool).await?;
+    let rows = sqlx::query(AssertSqlSafe(sql))
+        .bind(limit)
+        .fetch_all(pool)
+        .await?;
 
     rows.into_iter()
         .map(|row| {
@@ -363,7 +366,7 @@ async fn mark_outbox_published(pool: &PgPool, table_name: &str, id: i64) -> anyh
         WHERE "Id" = $1
         "#
     );
-    sqlx::query(&sql)
+    sqlx::query(AssertSqlSafe(sql))
         .bind(id)
         .bind(utc_now())
         .execute(pool)
@@ -384,7 +387,11 @@ async fn mark_outbox_failed(
         WHERE "Id" = $1
         "#
     );
-    sqlx::query(&sql).bind(id).bind(error).execute(pool).await?;
+    sqlx::query(AssertSqlSafe(sql))
+        .bind(id)
+        .bind(error)
+        .execute(pool)
+        .await?;
     Ok(())
 }
 

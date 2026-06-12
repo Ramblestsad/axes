@@ -1,6 +1,6 @@
 use axum::http::StatusCode;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use time::OffsetDateTime;
 use uuid::Uuid;
 
 use crate::error::AppError;
@@ -205,6 +205,6 @@ pub fn determine_inventory_result(
     }
 }
 
-pub fn utc_now() -> OffsetDateTime {
-    OffsetDateTime::now_utc()
+pub fn utc_now() -> DateTime<Utc> {
+    Utc::now()
 }
