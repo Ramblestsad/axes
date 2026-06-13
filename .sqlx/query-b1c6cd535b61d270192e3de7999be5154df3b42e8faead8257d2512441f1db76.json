@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT id, name, profit_margin FROM bakery WHERE id = $1",
+  "query": "SELECT id, name, profit_margin FROM bakery ORDER BY id LIMIT $1 OFFSET $2",
   "describe": {
     "columns": [
       {
@@ -39,7 +39,8 @@
     ],
     "parameters": {
       "Left": [
-        "Int4"
+        "Int8",
+        "Int8"
       ]
     },
     "nullable": [
@@ -48,5 +49,5 @@
       false
     ]
   },
-  "hash": "6b670fbb610f75b9e082516857ab55a8a30748bacf74a8dcb3874865db347d1b"
+  "hash": "b1c6cd535b61d270192e3de7999be5154df3b42e8faead8257d2512441f1db76"
 }
