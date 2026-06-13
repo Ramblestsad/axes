@@ -83,7 +83,9 @@ mod tests {
             read_url: None,
         };
 
-        let error = cfg.required_urls().expect_err("missing read url should fail");
+        let error = cfg
+            .required_urls()
+            .expect_err("missing read url should fail");
         assert!(error.to_string().contains("read"));
     }
 
@@ -95,7 +97,8 @@ mod tests {
         };
 
         assert_eq!(
-            cfg.required_write_url().expect("write url should be available"),
+            cfg.required_write_url()
+                .expect("write url should be available"),
             "postgresql://writer:5432/axes"
         );
     }
