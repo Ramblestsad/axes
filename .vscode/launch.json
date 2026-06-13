@@ -5,18 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Debug executable 'orders-worker'",
       "type": "lldb",
       "request": "launch",
-      "name": "Cargo launch bin 'axes'",
       "cargo": {
-        "args": ["build", "--package=axes"],
-        "filter": {
-          "name": "axes",
-          "kind": "bin"
-        }
+        "args": ["run", "--bin=orders-worker"]
       },
       "args": [],
-      "cwd": "${workspaceFolder}",
       "env": {
         "PG.USER": "melody",
         "PG.PASSWORD": "5161",
@@ -27,18 +22,13 @@
       }
     },
     {
+      "name": "Debug executable 'inventory-worker'",
       "type": "lldb",
       "request": "launch",
-      "name": "Cargo launch unit tests in bin 'axes'",
       "cargo": {
-        "args": ["test", "--no-run", "--package=axes"],
-        "filter": {
-          "name": "axes",
-          "kind": "bin"
-        }
+        "args": ["run", "--bin=inventory-worker"]
       },
       "args": [],
-      "cwd": "${workspaceFolder}",
       "env": {
         "PG.USER": "melody",
         "PG.PASSWORD": "5161",
@@ -49,18 +39,45 @@
       }
     },
     {
+      "name": "Debug unit tests in library 'axes'",
       "type": "lldb",
       "request": "launch",
-      "name": "Cargo launch unit tests in lib 'axes'",
       "cargo": {
-        "args": ["test", "--no-run", "--lib", "--package=axes"],
-        "filter": {
-          "name": "axes",
-          "kind": "lib"
-        }
+        "args": ["test"]
+      },
+      "env": {
+        "PG.USER": "melody",
+        "PG.PASSWORD": "5161",
+        "PG.DBNAME": "mydb",
+        "PG.PORT": "5432",
+        "PG.HOST": "localhost",
+        "PG.POOL.MAX_SIZE": "30"
+      }
+    },
+    {
+      "name": "Debug unit tests in executable 'axes'",
+      "type": "lldb",
+      "request": "launch",
+      "cargo": {
+        "args": ["test", "--bin=axes"]
+      },
+      "env": {
+        "PG.USER": "melody",
+        "PG.PASSWORD": "5161",
+        "PG.DBNAME": "mydb",
+        "PG.PORT": "5432",
+        "PG.HOST": "localhost",
+        "PG.POOL.MAX_SIZE": "30"
+      }
+    },
+    {
+      "name": "Debug executable 'axes'",
+      "type": "lldb",
+      "request": "launch",
+      "cargo": {
+        "args": ["run", "--bin=axes"]
       },
       "args": [],
-      "cwd": "${workspaceFolder}",
       "env": {
         "PG.USER": "melody",
         "PG.PASSWORD": "5161",
