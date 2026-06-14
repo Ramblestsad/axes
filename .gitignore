@@ -18,3 +18,4 @@ secret.yaml
 secret.local.yaml
 
 .env
+.codegraph/
