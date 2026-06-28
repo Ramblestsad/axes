@@ -32,7 +32,7 @@ pub(super) fn build_tracer_provider(
 }
 
 pub(super) fn current_trace_context() -> Option<(String, String)> {
-    let span_context = tracing::Span::current()
+    let span_context = ::tracing::Span::current()
         .context()
         .span()
         .span_context()
@@ -40,7 +40,7 @@ pub(super) fn current_trace_context() -> Option<(String, String)> {
     trace_and_span_id(&span_context)
 }
 
-pub(super) fn attach_parent_context_from_headers(span: &tracing::Span, headers: &HeaderMap) {
+pub(super) fn attach_parent_context_from_headers(span: &::tracing::Span, headers: &HeaderMap) {
     let parent_context =
         global::get_text_map_propagator(|propagator| propagator.extract(&HeaderExtractor(headers)));
     let parent_span = parent_context.span();
@@ -52,7 +52,7 @@ pub(super) fn attach_parent_context_from_headers(span: &tracing::Span, headers: 
 }
 
 pub(super) fn set_span_status(
-    span: &tracing::Span,
+    span: &::tracing::Span,
     key: &'static str,
     value: impl Into<Value>,
     is_error: bool,

@@ -4,7 +4,7 @@ mod http;
 mod logging;
 mod metrics;
 mod otlp;
-mod tracing;
+mod trace;
 
 pub use grpc::grpc_observability_layer;
 pub use http::http_observability;
@@ -33,7 +33,7 @@ impl ObservabilityGuard {
 pub fn init_observability() -> ObservabilityGuard {
     let settings = config::ObservabilitySettings::from_env();
     let mut warnings = Vec::new();
-    let tracer_provider = tracing::build_tracer_provider(&settings, &mut warnings);
+    let tracer_provider = trace::build_tracer_provider(&settings, &mut warnings);
     let tracer = tracer_provider.tracer("axes");
     let meter_provider = if settings.should_enable_exporters() {
         metrics::build_meter_provider(&settings, &mut warnings)
@@ -50,6 +50,7 @@ pub fn init_observability() -> ObservabilityGuard {
     }
 
     logging::init_tracing_subscriber(&settings.environment, tracer);
+    ::tracing::info!(environment = %settings.environment, "observability initialized");
 
     for warning in warnings {
         ::tracing::warn!(warning, "observability degraded");

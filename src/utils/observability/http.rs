@@ -9,7 +9,7 @@ use tracing::Instrument;
 
 use super::{
     metrics::record_http_metrics,
-    tracing::{attach_parent_context_from_headers, set_span_status},
+    trace::{attach_parent_context_from_headers, set_span_status},
 };
 
 pub async fn http_observability(req: Request, next: Next) -> Response {

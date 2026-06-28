@@ -13,7 +13,7 @@ use tracing::Instrument;
 
 use super::{
     metrics::record_grpc_metrics,
-    tracing::{attach_parent_context_from_headers, set_span_status},
+    trace::{attach_parent_context_from_headers, set_span_status},
 };
 
 #[derive(Clone, Copy, Default)]

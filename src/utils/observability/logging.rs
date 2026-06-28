@@ -14,7 +14,7 @@ use tracing_subscriber::{
     util::SubscriberInitExt,
 };
 
-use super::tracing::current_trace_context;
+use super::trace::current_trace_context;
 
 pub(super) fn init_tracing_subscriber(environment: &str, tracer: opentelemetry_sdk::trace::Tracer) {
     let env_filter = tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
@@ -32,7 +32,7 @@ fn init_development_tracing_subscriber(
     env_filter: tracing_subscriber::EnvFilter,
     tracer: opentelemetry_sdk::trace::Tracer,
 ) {
-    let time_format = fmt::time::ChronoLocal::new("%Y-%m-%d %H:%M:%S%.4f".to_string());
+    let time_format = fmt::time::ChronoUtc::rfc_3339();
 
     tracing_subscriber::registry()
         .with(env_filter)
@@ -104,12 +104,14 @@ where
         }
 
         let (severity_number, severity_text) = severity(metadata.level());
-        let timestamp = unix_time_nanos();
+        let now = Utc::now();
+        let timestamp = unix_time_nanos(now);
         let body = visitor.body.unwrap_or_else(|| metadata.name().to_string());
         let (trace_id, span_id) =
             current_trace_context().unwrap_or_else(|| (String::new(), String::new()));
 
         let payload = json!({
+            "timestamp": now.to_rfc3339(),
             "time_unix_nano": timestamp,
             "observed_time_unix_nano": timestamp,
             "severity_number": severity_number,
@@ -216,8 +218,7 @@ fn severity(level: &Level) -> (u8, &'static str) {
     }
 }
 
-fn unix_time_nanos() -> String {
-    let now = Utc::now();
+fn unix_time_nanos(now: chrono::DateTime<Utc>) -> String {
     let seconds = i128::from(now.timestamp());
     let nanos = i128::from(now.timestamp_subsec_nanos());
     (seconds * 1_000_000_000 + nanos).to_string()
