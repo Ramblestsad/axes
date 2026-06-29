@@ -63,13 +63,10 @@ where
                 let messages = list_messages().await?;
                 for message in messages {
                     let key = message.message_id.to_string();
-                    match producer
-                        .send(
+                    match producer.send(
                             FutureRecord::to(&topic).payload(&message.payload).key(&key),
                             Duration::from_secs(5),
-                        )
-                        .await
-                    {
+                        ).await {
                         Ok(_) => mark_published(message.id).await?,
                         Err((error, _)) => {
                             warn!(error = %error, outbox_id = message.id, "failed to publish outbox message");
