@@ -19,8 +19,10 @@ COPY . .
 
 RUN --mount=type=cache,target=/app/target/ \
     --mount=type=cache,target=/usr/local/cargo/registry/ \
-    cargo build --release && \
-    cp ./target/release/$APP_NAME /bin/${APP_NAME}
+    cargo build --release --bins && \
+    cp ./target/release/$APP_NAME /bin/${APP_NAME} && \
+    cp ./target/release/inventory-worker /bin/inventory-worker && \
+    cp ./target/release/orders-worker /bin/orders-worker
 
 FROM debian:bookworm-slim AS final
 
@@ -34,8 +36,8 @@ RUN adduser \
     --uid "${UID}" \
     appuser
 
-COPY --from=build /bin/axes /bin/axes
-RUN chown appuser /bin/axes
+COPY --from=build /bin/axes /bin/inventory-worker /bin/orders-worker /bin/
+RUN chown appuser /bin/axes /bin/inventory-worker /bin/orders-worker
 RUN mkdir /settings && chown appuser /settings
 
 USER appuser

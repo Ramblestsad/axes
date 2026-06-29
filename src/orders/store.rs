@@ -9,6 +9,8 @@ use super::{
     OrderStatus, apply_inventory_result, determine_inventory_result, utc_now,
 };
 
+const OUTBOX_LOCK_SECONDS: i64 = 300;
+
 #[derive(Debug, Clone)]
 pub struct OrderRecord {
     pub id: Uuid,
@@ -335,15 +337,27 @@ async fn list_unpublished_outbox(
 ) -> anyhow::Result<Vec<OutboxMessageRecord>> {
     let sql = format!(
         r#"
-        SELECT "Id" AS id, "MessageId" AS message_id, "Payload" AS payload
-        FROM "{table_name}"
-        WHERE "PublishedOnUtc" IS NULL
-        ORDER BY "Id"
-        LIMIT $1
+        WITH picked AS (
+            SELECT "Id"
+            FROM "{table_name}"
+            WHERE "PublishedOnUtc" IS NULL
+              AND ("LockedUntilUtc" IS NULL OR "LockedUntilUtc" <= now())
+            ORDER BY "Id"
+            LIMIT $1
+            FOR UPDATE SKIP LOCKED
+        )
+        UPDATE "{table_name}" AS outbox
+        SET "LockedUntilUtc" = now() + ($2 * INTERVAL '1 second')
+        FROM picked
+        WHERE outbox."Id" = picked."Id"
+        RETURNING outbox."Id" AS id,
+                  outbox."MessageId" AS message_id,
+                  outbox."Payload" AS payload
         "#
     );
     let rows = sqlx::query(AssertSqlSafe(sql))
         .bind(limit)
+        .bind(OUTBOX_LOCK_SECONDS)
         .fetch_all(pool)
         .await?;
 
@@ -362,7 +376,7 @@ async fn mark_outbox_published(pool: &PgPool, table_name: &str, id: i64) -> anyh
     let sql = format!(
         r#"
         UPDATE "{table_name}"
-        SET "PublishedOnUtc" = $2, "LastError" = NULL
+        SET "PublishedOnUtc" = $2, "LockedUntilUtc" = NULL, "LastError" = NULL
         WHERE "Id" = $1
         "#
     );
@@ -383,7 +397,7 @@ async fn mark_outbox_failed(
     let sql = format!(
         r#"
         UPDATE "{table_name}"
-        SET "RetryCount" = "RetryCount" + 1, "LastError" = $2
+        SET "RetryCount" = "RetryCount" + 1, "LockedUntilUtc" = NULL, "LastError" = $2
         WHERE "Id" = $1
         "#
     );
